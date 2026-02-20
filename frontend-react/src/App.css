@@ -1,0 +1,52 @@
+#root {
+  min-height: 100vh;
+}
+
+.anime-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.anime-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 0.75rem 1.25rem rgba(33, 37, 41, 0.15) !important;
+}
+
+.anime-poster {
+  height: 340px;
+  object-fit: cover;
+}
+
+.anime-title {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.anime-hero {
+  background: linear-gradient(135deg, rgba(13, 110, 253, 0.08), rgba(255, 193, 7, 0.08));
+}
+
+.anime-detail-banner {
+  min-height: 260px;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+
+.anime-detail-overlay {
+  min-height: 260px;
+  padding: 1.5rem;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.72), rgba(0, 0, 0, 0.2));
+}
+
+.anime-detail-poster {
+  max-height: 420px;
+  object-fit: cover;
+  width: 100%;
+}
