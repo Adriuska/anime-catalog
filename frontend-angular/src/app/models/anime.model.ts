@@ -5,6 +5,7 @@ export interface Anime {
   title: string;
   description: string;
   posterUrl: string;
+  bannerUrl?: string;
   episodes: number;
   releaseDate: string;
   isOngoing: boolean;

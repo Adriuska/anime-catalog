@@ -6,6 +6,7 @@ import { AnimeService } from '../../services/anime.service';
 import { LoaderComponent } from '../../shared/loader.component';
 import { AlertComponent } from '../../shared/alert.component';
 import { ConfirmModalComponent } from '../../shared/confirm-modal.component';
+import { getAnimeImageByTitle, getPreferredAnimeImage } from '../../core/anime-images';
 
 @Component({
   selector: 'app-anime-detail',
@@ -20,15 +21,32 @@ import { ConfirmModalComponent } from '../../shared/confirm-modal.component';
     <app-alert [message]="errorMessage" type="danger"></app-alert>
     <app-loader [visible]="loading"></app-loader>
 
-    <div class="card" *ngIf="anime && !loading">
+    <div class="card border-0 shadow-sm overflow-hidden" *ngIf="anime && !loading">
+      <div
+        class="p-4 d-flex flex-column justify-content-end"
+        style="min-height: 250px; color: #fff; background-size: cover; background-position: center;"
+        [style.background-image]="'linear-gradient(to top, rgba(0,0,0,0.72), rgba(0,0,0,0.2)), url(' + getPreferredImage(anime, 'banner') + ')'"
+      >
+        <div class="d-flex gap-2 mb-2">
+          <span class="badge text-bg-warning">★ {{ anime.rating | number: '1.1-1' }}</span>
+          <span class="badge text-bg-dark">{{ anime.isOngoing ? 'Ongoing' : 'Finished' }}</span>
+        </div>
+        <h3 class="mb-1">{{ anime.title }}</h3>
+        <p class="mb-0 text-light">{{ anime.description }}</p>
+      </div>
+
       <div class="row g-0">
-        <div class="col-md-3">
-          <img [src]="anime.posterUrl" class="img-fluid rounded-start" [alt]="anime.title" />
+        <div class="col-md-3 p-3 pb-0">
+          <img
+            [src]="getPreferredImage(anime, 'poster')"
+            class="img-fluid rounded"
+            [alt]="anime.title"
+            style="width: 100%; max-height: 420px; object-fit: cover;"
+            (error)="onImageError($event, anime.title, 'poster')"
+          />
         </div>
         <div class="col-md-9">
           <div class="card-body">
-            <h4>{{ anime.title }}</h4>
-            <p>{{ anime.description }}</p>
             <p><strong>Episodes:</strong> {{ anime.episodes }}</p>
             <p><strong>Rating:</strong> {{ anime.rating }}</p>
             <p><strong>Genres:</strong> {{ anime.genres.join(', ') }}</p>
@@ -94,5 +112,19 @@ export class AnimeDetailComponent implements OnInit {
         this.deleteModalOpen = false;
       },
     });
+  }
+
+  getPreferredImage(anime: Anime, variant: 'poster' | 'banner' = 'poster'): string {
+    return getPreferredAnimeImage(anime, variant);
+  }
+
+  onImageError(event: Event, title: string, variant: 'poster' | 'banner' = 'poster'): void {
+    const target = event.target as HTMLImageElement | null;
+    if (!target) return;
+
+    const fallback = getAnimeImageByTitle(title, variant);
+    if (target.src !== fallback) {
+      target.src = fallback;
+    }
   }
 }

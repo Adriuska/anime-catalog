@@ -7,6 +7,7 @@ import { AnimeService } from '../../services/anime.service';
 import { StudioService } from '../../services/studio.service';
 import { LoaderComponent } from '../../shared/loader.component';
 import { AlertComponent } from '../../shared/alert.component';
+import { getAnimeImageByTitle } from '../../core/anime-images';
 
 @Component({
   selector: 'app-anime-form',
@@ -24,6 +25,38 @@ import { AlertComponent } from '../../shared/alert.component';
       <div class="row g-3">
         <div class="col-md-6"><label class="form-label">Title</label><input class="form-control" formControlName="title" /></div>
         <div class="col-md-6"><label class="form-label">Poster URL</label><input class="form-control" formControlName="posterUrl" /></div>
+        <div class="col-md-6"><label class="form-label">Banner URL (optional)</label><input class="form-control" formControlName="bannerUrl" /></div>
+        <div class="col-md-6"></div>
+        <div class="col-md-6">
+          <div class="card h-100 border-0 shadow-sm">
+            <img
+              [src]="form.controls.posterUrl.value || suggestedPosterUrl"
+              alt="Poster preview"
+              class="card-img-top"
+              style="height: 320px; object-fit: cover;"
+              (error)="onPreviewError($event, suggestedPosterUrl)"
+            />
+            <div class="card-body py-2 px-3">
+              <div class="small text-secondary mb-2">Suggested poster based on title</div>
+              <button type="button" class="btn btn-sm btn-outline-primary" (click)="applySuggestedUrl('poster')">Use suggested poster</button>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card h-100 border-0 shadow-sm">
+            <img
+              [src]="form.controls.bannerUrl.value || suggestedBannerUrl"
+              alt="Banner preview"
+              class="card-img-top"
+              style="height: 170px; object-fit: cover;"
+              (error)="onPreviewError($event, suggestedBannerUrl)"
+            />
+            <div class="card-body py-2 px-3">
+              <div class="small text-secondary mb-2">Suggested banner based on title</div>
+              <button type="button" class="btn btn-sm btn-outline-primary" (click)="applySuggestedUrl('banner')">Use suggested banner</button>
+            </div>
+          </div>
+        </div>
         <div class="col-12"><label class="form-label">Description</label><textarea class="form-control" rows="3" formControlName="description"></textarea></div>
         <div class="col-md-2"><label class="form-label">Episodes</label><input type="number" class="form-control" formControlName="episodes" /></div>
         <div class="col-md-2"><label class="form-label">Rating</label><input type="number" step="0.1" class="form-control" formControlName="rating" /></div>
@@ -55,11 +88,15 @@ export class AnimeFormComponent implements OnInit {
   loading = false;
   errorMessage = '';
   studios: Studio[] = [];
+  manualImageUrls = { poster: false, banner: false };
+  suggestedPosterUrl = getAnimeImageByTitle('', 'poster');
+  suggestedBannerUrl = getAnimeImageByTitle('', 'banner');
 
   form = this.fb.nonNullable.group({
     title: ['', [Validators.required]],
     description: ['', [Validators.required, Validators.minLength(10)]],
     posterUrl: ['', [Validators.required, Validators.pattern(/^https?:\/\/.+/)]],
+    bannerUrl: ['', [Validators.pattern(/^https?:\/\/.+/)]],
     episodes: [1, [Validators.required, Validators.min(1)]],
     releaseDate: ['', [Validators.required]],
     isOngoing: false,
@@ -76,6 +113,7 @@ export class AnimeFormComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.setupImageSuggestionSync();
     this.loadStudios();
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
@@ -100,6 +138,7 @@ export class AnimeFormComponent implements OnInit {
           title: anime.title,
           description: anime.description,
           posterUrl: anime.posterUrl,
+          bannerUrl: anime.bannerUrl || '',
           episodes: anime.episodes,
           releaseDate: anime.releaseDate?.slice(0, 10) || '',
           isOngoing: anime.isOngoing,
@@ -107,6 +146,9 @@ export class AnimeFormComponent implements OnInit {
           genres: anime.genres.join(', '),
           studio: typeof anime.studio === 'string' ? anime.studio : anime.studio?._id || '',
         });
+        this.manualImageUrls = { poster: true, banner: true };
+        this.suggestedPosterUrl = getAnimeImageByTitle(anime.title, 'poster');
+        this.suggestedBannerUrl = getAnimeImageByTitle(anime.title, 'banner');
         this.loading = false;
       },
       error: () => {
@@ -128,6 +170,7 @@ export class AnimeFormComponent implements OnInit {
       title: value.title,
       description: value.description,
       posterUrl: value.posterUrl,
+      bannerUrl: value.bannerUrl || undefined,
       episodes: value.episodes,
       releaseDate: value.releaseDate,
       isOngoing: value.isOngoing,
@@ -147,5 +190,56 @@ export class AnimeFormComponent implements OnInit {
         this.loading = false;
       },
     });
+  }
+
+  setupImageSuggestionSync(): void {
+    const titleControl = this.form.controls.title;
+    const posterControl = this.form.controls.posterUrl;
+    const bannerControl = this.form.controls.bannerUrl;
+
+    titleControl.valueChanges.subscribe((title) => {
+      const safeTitle = title || '';
+      const posterSuggestion = getAnimeImageByTitle(safeTitle, 'poster');
+      const bannerSuggestion = getAnimeImageByTitle(safeTitle, 'banner');
+
+      this.suggestedPosterUrl = posterSuggestion;
+      this.suggestedBannerUrl = bannerSuggestion;
+
+      if (!this.manualImageUrls.poster || !posterControl.value) {
+        posterControl.setValue(posterSuggestion, { emitEvent: false });
+      }
+
+      if (!this.manualImageUrls.banner || !bannerControl.value) {
+        bannerControl.setValue(bannerSuggestion, { emitEvent: false });
+      }
+    });
+
+    posterControl.valueChanges.subscribe((value) => {
+      this.manualImageUrls.poster = Boolean(value && value !== this.suggestedPosterUrl);
+    });
+
+    bannerControl.valueChanges.subscribe((value) => {
+      this.manualImageUrls.banner = Boolean(value && value !== this.suggestedBannerUrl);
+    });
+  }
+
+  applySuggestedUrl(field: 'poster' | 'banner'): void {
+    if (field === 'poster') {
+      this.form.controls.posterUrl.setValue(this.suggestedPosterUrl);
+      this.manualImageUrls.poster = false;
+      return;
+    }
+
+    this.form.controls.bannerUrl.setValue(this.suggestedBannerUrl);
+    this.manualImageUrls.banner = false;
+  }
+
+  onPreviewError(event: Event, fallbackUrl: string): void {
+    const target = event.target as HTMLImageElement | null;
+    if (!target) return;
+
+    if (target.src !== fallbackUrl) {
+      target.src = fallbackUrl;
+    }
   }
 }

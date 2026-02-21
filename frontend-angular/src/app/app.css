@@ -1,3 +1,40 @@
 :host {
 	display: block;
 }
+
+.app-navbar {
+	background: linear-gradient(110deg, #191d33 0%, #3a2a72 50%, #5b2f91 100%);
+	border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+	box-shadow: 0 0.65rem 1.4rem rgba(20, 12, 46, 0.28);
+}
+
+.app-brand {
+	color: #fff;
+	font-weight: 700;
+	letter-spacing: 0.3px;
+}
+
+.app-brand:hover {
+	color: #f8f9ff;
+}
+
+.app-nav-links {
+	gap: 0.35rem;
+}
+
+.app-nav-link {
+	color: rgba(255, 255, 255, 0.86);
+	border-radius: 999px;
+	padding: 0.38rem 0.9rem !important;
+	transition: all 0.2s ease;
+}
+
+.app-nav-link:hover {
+	color: #fff;
+	background: rgba(255, 255, 255, 0.12);
+}
+
+.app-nav-link.active {
+	color: #fff !important;
+	background: rgba(255, 255, 255, 0.2);
+}

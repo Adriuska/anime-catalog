@@ -9,6 +9,7 @@ import { StudioService } from '../../services/studio.service';
 import { LoaderComponent } from '../../shared/loader.component';
 import { AlertComponent } from '../../shared/alert.component';
 import { ConfirmModalComponent } from '../../shared/confirm-modal.component';
+import { getAnimeImageByTitle, getPreferredAnimeImage } from '../../core/anime-images';
 
 @Component({
   selector: 'app-anime-list',
@@ -51,10 +52,19 @@ import { ConfirmModalComponent } from '../../shared/confirm-modal.component';
     <div class="table-responsive" *ngIf="!loading">
       <table class="table table-striped align-middle">
         <thead>
-          <tr><th>Title</th><th>Episodes</th><th>Rating</th><th>Status</th><th>Studio</th><th class="text-end">Actions</th></tr>
+          <tr><th style="width: 92px;">Poster</th><th>Title</th><th>Episodes</th><th>Rating</th><th>Status</th><th>Studio</th><th class="text-end">Actions</th></tr>
         </thead>
         <tbody>
           <tr *ngFor="let anime of animes">
+            <td>
+              <img
+                [src]="getPreferredImage(anime, 'poster')"
+                class="rounded"
+                [alt]="anime.title"
+                style="width: 72px; height: 96px; object-fit: cover;"
+                (error)="onImageError($event, anime.title, 'poster')"
+              />
+            </td>
             <td>{{ anime.title }}</td>
             <td>{{ anime.episodes }}</td>
             <td>{{ anime.rating }}</td>
@@ -66,7 +76,7 @@ import { ConfirmModalComponent } from '../../shared/confirm-modal.component';
               <button class="btn btn-sm btn-outline-danger" (click)="openDelete(anime)">Delete</button>
             </td>
           </tr>
-          <tr *ngIf="animes.length === 0"><td colspan="6" class="text-center">No animes found.</td></tr>
+          <tr *ngIf="animes.length === 0"><td colspan="7" class="text-center">No animes found.</td></tr>
         </tbody>
       </table>
     </div>
@@ -190,5 +200,19 @@ export class AnimeListComponent implements OnInit {
         this.closeDelete();
       },
     });
+  }
+
+  getPreferredImage(anime: Anime, variant: 'poster' | 'banner' = 'poster'): string {
+    return getPreferredAnimeImage(anime, variant);
+  }
+
+  onImageError(event: Event, title: string, variant: 'poster' | 'banner' = 'poster'): void {
+    const target = event.target as HTMLImageElement | null;
+    if (!target) return;
+
+    const fallback = getAnimeImageByTitle(title, variant);
+    if (target.src !== fallback) {
+      target.src = fallback;
+    }
   }
 }

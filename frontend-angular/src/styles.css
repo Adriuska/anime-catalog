@@ -1,5 +1,5 @@
 body {
-	background-color: #f8f9fa;
+	background: linear-gradient(180deg, #f6f8ff 0%, #f7f7fb 46%, #ffffff 100%);
 }
 
 /* You can add global styles to this file, and also import other style files */

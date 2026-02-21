@@ -4,6 +4,7 @@ import { api } from '../../api/axios';
 import Loader from '../../components/Loader';
 import AlertMessage from '../../components/AlertMessage';
 import ConfirmModal from '../../components/ConfirmModal';
+import { getAnimeImageByTitle, getPreferredAnimeImage } from '../../utils/animeImages';
 
 export default function AnimeDetailPage() {
   const { id } = useParams();
@@ -39,6 +40,9 @@ export default function AnimeDetailPage() {
     }
   };
 
+  const fallbackBanner = getAnimeImageByTitle(anime?.title, 'banner');
+  const fallbackPoster = getAnimeImageByTitle(anime?.title, 'poster');
+
   return (
     <>
       <div className="d-flex justify-content-between align-items-center mb-3">
@@ -50,7 +54,7 @@ export default function AnimeDetailPage() {
 
       {anime && !loading && (
         <div className="card border-0 shadow-sm overflow-hidden">
-          <div className="anime-detail-banner" style={{ backgroundImage: `url(${anime.bannerUrl || anime.posterUrl})` }}>
+          <div className="anime-detail-banner" style={{ backgroundImage: `url(${getPreferredAnimeImage(anime, 'banner')})` }}>
             <div className="anime-detail-overlay">
               <div className="d-flex flex-wrap gap-2 mb-3">
                 <span className="badge text-bg-warning">★ {anime.rating?.toFixed(1)}</span>
@@ -65,7 +69,16 @@ export default function AnimeDetailPage() {
           <div className="card-body">
             <div className="row g-4">
               <div className="col-md-4 col-lg-3">
-                <img src={anime.posterUrl} className="img-fluid rounded anime-detail-poster" alt={anime.title} />
+                <img
+                  src={getPreferredAnimeImage(anime, 'poster')}
+                  className="img-fluid rounded anime-detail-poster"
+                  alt={anime.title}
+                  onError={(event) => {
+                    if (event.currentTarget.src !== fallbackPoster) {
+                      event.currentTarget.src = fallbackPoster;
+                    }
+                  }}
+                />
               </div>
               <div className="col-md-8 col-lg-9">
                 <div className="row g-3 mb-3">

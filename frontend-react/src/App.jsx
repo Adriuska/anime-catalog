@@ -1,4 +1,4 @@
-import { Link, Navigate, Route, Routes } from 'react-router-dom';
+import { Link, NavLink, Navigate, Route, Routes } from 'react-router-dom';
 import AnimeListPage from './pages/animes/AnimeListPage';
 import AnimeDetailPage from './pages/animes/AnimeDetailPage';
 import AnimeFormPage from './pages/animes/AnimeFormPage';
@@ -10,13 +10,17 @@ import './App.css';
 function App() {
   return (
     <>
-      <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
+      <nav className="navbar navbar-expand-lg app-navbar">
         <div className="container">
-          <Link className="navbar-brand fw-semibold" to="/animes">AniVerse</Link>
+          <Link className="navbar-brand app-brand" to="/animes">AniVerse</Link>
           <div className="collapse navbar-collapse show">
-            <ul className="navbar-nav me-auto">
-              <li className="nav-item"><Link className="nav-link" to="/animes">Browse</Link></li>
-              <li className="nav-item"><Link className="nav-link" to="/studios">Studios</Link></li>
+            <ul className="navbar-nav ms-auto app-nav-links">
+              <li className="nav-item">
+                <NavLink className={({ isActive }) => `nav-link app-nav-link ${isActive ? 'active' : ''}`} to="/animes">Browse</NavLink>
+              </li>
+              <li className="nav-item">
+                <NavLink className={({ isActive }) => `nav-link app-nav-link ${isActive ? 'active' : ''}`} to="/studios">Studios</NavLink>
+              </li>
             </ul>
           </div>
         </div>

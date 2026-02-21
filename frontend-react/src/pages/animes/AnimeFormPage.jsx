@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { api } from '../../api/axios';
 import Loader from '../../components/Loader';
 import AlertMessage from '../../components/AlertMessage';
+import { getAnimeImageByTitle } from '../../utils/animeImages';
 
 const initialForm = {
   title: '',
@@ -30,6 +31,10 @@ export default function AnimeFormPage() {
   const [studios, setStudios] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [manualImageUrls, setManualImageUrls] = useState({ poster: false, banner: false });
+
+  const suggestedPosterUrl = useMemo(() => getAnimeImageByTitle(form.title, 'poster'), [form.title]);
+  const suggestedBannerUrl = useMemo(() => getAnimeImageByTitle(form.title, 'banner'), [form.title]);
 
   useEffect(() => {
     const loadStudios = async () => {
@@ -63,6 +68,7 @@ export default function AnimeFormPage() {
           genres: data.genres.join(', '),
           studio: data.studio?._id || data.studio || '',
         });
+        setManualImageUrls({ poster: true, banner: true });
       } catch {
         setError('Failed to load anime.');
       } finally {
@@ -76,7 +82,37 @@ export default function AnimeFormPage() {
 
   const handleChange = (event) => {
     const { name, value, type, checked } = event.target;
+
+    if (name === 'title') {
+      setForm((prev) => ({
+        ...prev,
+        title: value,
+        posterUrl: !manualImageUrls.poster || !prev.posterUrl ? getAnimeImageByTitle(value, 'poster') : prev.posterUrl,
+        bannerUrl: !manualImageUrls.banner || !prev.bannerUrl ? getAnimeImageByTitle(value, 'banner') : prev.bannerUrl,
+      }));
+      return;
+    }
+
+    if (name === 'posterUrl') {
+      setManualImageUrls((prev) => ({ ...prev, poster: true }));
+    }
+
+    if (name === 'bannerUrl') {
+      setManualImageUrls((prev) => ({ ...prev, banner: true }));
+    }
+
     setForm((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
+  };
+
+  const applySuggestedUrl = (field) => {
+    if (field === 'poster') {
+      setForm((prev) => ({ ...prev, posterUrl: suggestedPosterUrl }));
+      setManualImageUrls((prev) => ({ ...prev, poster: false }));
+      return;
+    }
+
+    setForm((prev) => ({ ...prev, bannerUrl: suggestedBannerUrl }));
+    setManualImageUrls((prev) => ({ ...prev, banner: false }));
   };
 
   const validate = () => {
@@ -150,6 +186,24 @@ export default function AnimeFormPage() {
           <div className="col-md-6"><label className="form-label">Poster URL</label><input className="form-control" name="posterUrl" value={form.posterUrl} onChange={handleChange} /></div>
           <div className="col-md-6"><label className="form-label">Banner URL (optional)</label><input className="form-control" name="bannerUrl" value={form.bannerUrl} onChange={handleChange} /></div>
           <div className="col-md-6"><label className="form-label">Trailer URL (optional)</label><input className="form-control" name="trailerUrl" value={form.trailerUrl} onChange={handleChange} /></div>
+          <div className="col-md-6">
+            <div className="card h-100 border-0 shadow-sm">
+              <img src={form.posterUrl || suggestedPosterUrl} alt="Poster preview" className="card-img-top anime-poster" onError={(event) => { if (event.currentTarget.src !== suggestedPosterUrl) event.currentTarget.src = suggestedPosterUrl; }} />
+              <div className="card-body py-2 px-3">
+                <div className="small text-secondary mb-2">Suggested poster based on title</div>
+                <button type="button" className="btn btn-sm btn-outline-primary" onClick={() => applySuggestedUrl('poster')}>Use suggested poster</button>
+              </div>
+            </div>
+          </div>
+          <div className="col-md-6">
+            <div className="card h-100 border-0 shadow-sm">
+              <img src={form.bannerUrl || suggestedBannerUrl} alt="Banner preview" className="card-img-top" style={{ height: '170px', objectFit: 'cover' }} onError={(event) => { if (event.currentTarget.src !== suggestedBannerUrl) event.currentTarget.src = suggestedBannerUrl; }} />
+              <div className="card-body py-2 px-3">
+                <div className="small text-secondary mb-2">Suggested banner based on title</div>
+                <button type="button" className="btn btn-sm btn-outline-primary" onClick={() => applySuggestedUrl('banner')}>Use suggested banner</button>
+              </div>
+            </div>
+          </div>
           <div className="col-12"><label className="form-label">Description</label><textarea className="form-control" rows="3" name="description" value={form.description} onChange={handleChange}></textarea></div>
           <div className="col-md-2"><label className="form-label">Episodes</label><input type="number" className="form-control" name="episodes" value={form.episodes} onChange={handleChange} /></div>
           <div className="col-md-2"><label className="form-label">Duration (min)</label><input type="number" className="form-control" name="durationMinutes" value={form.durationMinutes} onChange={handleChange} /></div>

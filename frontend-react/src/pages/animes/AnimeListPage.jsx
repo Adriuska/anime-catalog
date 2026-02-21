@@ -4,6 +4,7 @@ import { api } from '../../api/axios';
 import Loader from '../../components/Loader';
 import AlertMessage from '../../components/AlertMessage';
 import ConfirmModal from '../../components/ConfirmModal';
+import { getAnimeImageByTitle, getPreferredAnimeImage } from '../../utils/animeImages';
 
 const initialFilters = {
   search: '',
@@ -26,10 +27,21 @@ const buildParams = (pageNumber, filters) => {
 };
 
 function AnimeCard({ anime, onDelete }) {
+  const fallbackPoster = getAnimeImageByTitle(anime.title, 'poster');
+
   return (
     <article className="col">
       <div className="card h-100 shadow-sm anime-card border-0">
-        <img src={anime.posterUrl} className="card-img-top anime-poster" alt={anime.title} />
+        <img
+          src={getPreferredAnimeImage(anime, 'poster')}
+          className="card-img-top anime-poster"
+          alt={anime.title}
+          onError={(event) => {
+            if (event.currentTarget.src !== fallbackPoster) {
+              event.currentTarget.src = fallbackPoster;
+            }
+          }}
+        />
         <div className="card-body d-flex flex-column">
           <div className="d-flex justify-content-between align-items-start gap-2 mb-2">
             <h5 className="card-title mb-0 anime-title">{anime.title}</h5>
