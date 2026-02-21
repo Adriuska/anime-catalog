@@ -13,8 +13,8 @@ import { ConfirmModalComponent } from '../../shared/confirm-modal.component';
   imports: [CommonModule, RouterLink, LoaderComponent, AlertComponent, ConfirmModalComponent],
   template: `
     <div class="d-flex justify-content-between align-items-center mb-3">
-      <h2 class="mb-0">Studios</h2>
-      <a class="btn btn-primary" routerLink="/studios/new">New Studio</a>
+      <h2 class="mb-0">Estudios</h2>
+      <a class="btn btn-primary" routerLink="/studios/new">Nuevo estudio</a>
     </div>
 
     <app-alert [message]="errorMessage" type="danger"></app-alert>
@@ -26,25 +26,25 @@ import { ConfirmModalComponent } from '../../shared/confirm-modal.component';
       <table class="table table-striped align-middle">
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Country</th>
-            <th>Active</th>
-            <th class="text-end">Actions</th>
+            <th>Nombre</th>
+            <th>País</th>
+            <th>Activo</th>
+            <th class="text-end">Acciones</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let studio of studios">
             <td>{{ studio.name }}</td>
-            <td>{{ studio.country || 'N/A' }}</td>
-            <td>{{ studio.isActive ? 'Yes' : 'No' }}</td>
+            <td>{{ studio.country || 'N/D' }}</td>
+            <td>{{ studio.isActive ? 'Sí' : 'No' }}</td>
             <td class="text-end">
-              <a class="btn btn-sm btn-outline-primary me-2" [routerLink]="['/studios', studio._id]">Detail</a>
-              <a class="btn btn-sm btn-outline-secondary me-2" [routerLink]="['/studios', studio._id, 'edit']">Edit</a>
-              <button class="btn btn-sm btn-outline-danger" (click)="openDelete(studio)">Delete</button>
+              <a class="btn btn-sm btn-outline-primary me-2" [routerLink]="['/studios', studio._id]">Detalle</a>
+              <a class="btn btn-sm btn-outline-secondary me-2" [routerLink]="['/studios', studio._id, 'edit']">Editar</a>
+              <button class="btn btn-sm btn-outline-danger" (click)="openDelete(studio)">Eliminar</button>
             </td>
           </tr>
           <tr *ngIf="studios.length === 0">
-            <td colspan="4" class="text-center">No studios found.</td>
+            <td colspan="4" class="text-center">No se encontraron estudios.</td>
           </tr>
         </tbody>
       </table>
@@ -52,7 +52,7 @@ import { ConfirmModalComponent } from '../../shared/confirm-modal.component';
 
     <app-confirm-modal
       [open]="deleteModalOpen"
-      [message]="'Delete studio ' + (selectedStudio?.name || '') + '?'"
+      [message]="'¿Eliminar estudio ' + (selectedStudio?.name || '') + '?'"
       (cancel)="closeDelete()"
       (confirm)="deleteStudio()"
     ></app-confirm-modal>
@@ -80,7 +80,7 @@ export class StudioListComponent implements OnInit {
         this.loading = false;
       },
       error: () => {
-        this.errorMessage = 'Failed to load studios.';
+        this.errorMessage = 'No se pudieron cargar los estudios.';
         this.loading = false;
       },
     });
@@ -103,12 +103,12 @@ export class StudioListComponent implements OnInit {
 
     this.studioService.remove(this.selectedStudio._id).subscribe({
       next: () => {
-        this.successMessage = 'Studio deleted successfully.';
+        this.successMessage = 'Estudio eliminado correctamente.';
         this.closeDelete();
         this.loadStudios();
       },
       error: () => {
-        this.errorMessage = 'Failed to delete studio.';
+        this.errorMessage = 'No se pudo eliminar el estudio.';
         this.closeDelete();
       },
     });

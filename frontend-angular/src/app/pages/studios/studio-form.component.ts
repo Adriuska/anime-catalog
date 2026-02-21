@@ -12,20 +12,20 @@ import { AlertComponent } from '../../shared/alert.component';
   imports: [CommonModule, ReactiveFormsModule, RouterLink, LoaderComponent, AlertComponent],
   template: `
     <div class="d-flex justify-content-between align-items-center mb-3">
-      <h2 class="mb-0">{{ isEdit ? 'Edit Studio' : 'New Studio' }}</h2>
-      <a class="btn btn-outline-secondary" routerLink="/studios">Back</a>
+      <h2 class="mb-0">{{ isEdit ? 'Editar estudio' : 'Nuevo estudio' }}</h2>
+      <a class="btn btn-outline-secondary" routerLink="/studios">Volver</a>
     </div>
 
     <app-alert [message]="errorMessage" type="danger"></app-alert>
 
     <form class="card card-body" [formGroup]="form" (ngSubmit)="submit()">
       <div class="row g-3">
-        <div class="col-md-6"><label class="form-label">Name</label><input class="form-control" formControlName="name" /></div>
-        <div class="col-md-6"><label class="form-label">Country</label><input class="form-control" formControlName="country" /></div>
-        <div class="col-md-4"><label class="form-label">Founded Date</label><input type="date" class="form-control" formControlName="foundedDate" /></div>
-        <div class="col-md-4 d-flex align-items-end"><div class="form-check"><input id="isActive" type="checkbox" class="form-check-input" formControlName="isActive" /><label class="form-check-label" for="isActive">Active</label></div></div>
+        <div class="col-md-6"><label class="form-label">Nombre</label><input class="form-control" formControlName="name" /></div>
+        <div class="col-md-6"><label class="form-label">País</label><input class="form-control" formControlName="country" /></div>
+        <div class="col-md-4"><label class="form-label">Fecha de fundación</label><input type="date" class="form-control" formControlName="foundedDate" /></div>
+        <div class="col-md-4 d-flex align-items-end"><div class="form-check"><input id="isActive" type="checkbox" class="form-check-input" formControlName="isActive" /><label class="form-check-label" for="isActive">Activo</label></div></div>
       </div>
-      <div class="mt-3"><button class="btn btn-primary" [disabled]="form.invalid || loading" type="submit">{{ isEdit ? 'Update' : 'Create' }}</button></div>
+      <div class="mt-3"><button class="btn btn-primary" [disabled]="form.invalid || loading" type="submit">{{ isEdit ? 'Actualizar' : 'Crear' }}</button></div>
     </form>
 
     <app-loader [visible]="loading"></app-loader>
@@ -74,7 +74,7 @@ export class StudioFormComponent implements OnInit {
         this.loading = false;
       },
       error: () => {
-        this.errorMessage = 'Failed to load studio.';
+        this.errorMessage = 'No se pudo cargar el estudio.';
         this.loading = false;
       },
     });
@@ -102,7 +102,7 @@ export class StudioFormComponent implements OnInit {
     request$.subscribe({
       next: () => this.router.navigate(['/studios']),
       error: () => {
-        this.errorMessage = 'Failed to save studio.';
+        this.errorMessage = 'No se pudo guardar el estudio.';
         this.loading = false;
       },
     });

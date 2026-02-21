@@ -1,7 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Anime } from '../../models/anime.model';
 import { Studio } from '../../models/studio.model';
 import { AnimeService } from '../../services/anime.service';
@@ -17,8 +17,14 @@ import { getAnimeImageByTitle, getPreferredAnimeImage } from '../../core/anime-i
   imports: [CommonModule, ReactiveFormsModule, RouterLink, LoaderComponent, AlertComponent, ConfirmModalComponent],
   template: `
     <div class="d-flex justify-content-between align-items-center mb-3">
-      <h2 class="mb-0">Animes</h2>
-      <a class="btn btn-primary" routerLink="/animes/new">New Anime</a>
+      <h2 class="mb-0">{{ pageTitle }}</h2>
+      <a class="btn btn-primary" routerLink="/animes/new">Nuevo anime</a>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2 mb-3">
+      <a class="btn btn-sm" [class.btn-dark]="mode === 'catalog'" [class.btn-outline-dark]="mode !== 'catalog'" routerLink="/animes">Catálogo</a>
+      <a class="btn btn-sm" [class.btn-dark]="mode === 'library'" [class.btn-outline-dark]="mode !== 'library'" routerLink="/library">Biblioteca</a>
+      <a class="btn btn-sm" [class.btn-dark]="mode === 'favorites'" [class.btn-outline-dark]="mode !== 'favorites'" routerLink="/favorites">Favoritos</a>
     </div>
 
     <app-alert [message]="errorMessage" type="danger"></app-alert>
@@ -26,24 +32,24 @@ import { getAnimeImageByTitle, getPreferredAnimeImage } from '../../core/anime-i
 
     <form [formGroup]="filtersForm" class="card card-body mb-3" (ngSubmit)="applyFilters()">
       <div class="row g-2">
-        <div class="col-md-3"><input class="form-control" formControlName="search" placeholder="Search title" /></div>
-        <div class="col-md-2"><input class="form-control" formControlName="genre" placeholder="Genre" /></div>
+        <div class="col-md-3"><input class="form-control" formControlName="search" placeholder="Buscar título" /></div>
+        <div class="col-md-2"><input class="form-control" formControlName="genre" placeholder="Género" /></div>
         <div class="col-md-2">
           <select class="form-select" formControlName="isOngoing">
-            <option value="">All status</option>
-            <option value="true">Ongoing</option>
-            <option value="false">Finished</option>
+            <option value="">Todos los estados</option>
+            <option value="true">En emisión</option>
+            <option value="false">Finalizado</option>
           </select>
         </div>
         <div class="col-md-2">
           <select class="form-select" formControlName="studioId">
-            <option value="">All studios</option>
+            <option value="">Todos los estudios</option>
             <option *ngFor="let studio of studios" [value]="studio._id">{{ studio.name }}</option>
           </select>
         </div>
-        <div class="col-md-1"><input class="form-control" formControlName="minRating" placeholder="Min" /></div>
-        <div class="col-md-1"><input class="form-control" formControlName="maxRating" placeholder="Max" /></div>
-        <div class="col-md-1"><button class="btn btn-dark w-100" type="submit">Go</button></div>
+        <div class="col-md-1"><input class="form-control" formControlName="minRating" placeholder="Mín" /></div>
+        <div class="col-md-1"><input class="form-control" formControlName="maxRating" placeholder="Máx" /></div>
+        <div class="col-md-1"><button class="btn btn-dark w-100" type="submit">Ir</button></div>
       </div>
     </form>
 
@@ -52,7 +58,7 @@ import { getAnimeImageByTitle, getPreferredAnimeImage } from '../../core/anime-i
     <div class="table-responsive" *ngIf="!loading">
       <table class="table table-striped align-middle">
         <thead>
-          <tr><th style="width: 92px;">Poster</th><th>Title</th><th>Episodes</th><th>Rating</th><th>Status</th><th>Studio</th><th class="text-end">Actions</th></tr>
+          <tr><th style="width: 92px;">Póster</th><th>Título</th><th>Episodios</th><th>Puntuación</th><th>Estado</th><th>Estudio</th><th>Colección</th><th class="text-end">Acciones</th></tr>
         </thead>
         <tbody>
           <tr *ngFor="let anime of animes">
@@ -68,24 +74,34 @@ import { getAnimeImageByTitle, getPreferredAnimeImage } from '../../core/anime-i
             <td>{{ anime.title }}</td>
             <td>{{ anime.episodes }}</td>
             <td>{{ anime.rating }}</td>
-            <td>{{ anime.isOngoing ? 'Ongoing' : 'Finished' }}</td>
+            <td>{{ anime.isOngoing ? 'En emisión' : 'Finalizado' }}</td>
             <td>{{ getStudioName(anime) }}</td>
+            <td>
+              <div class="d-flex flex-wrap gap-1">
+                <button class="btn btn-sm" [class.btn-primary]="anime.inLibrary" [class.btn-outline-primary]="!anime.inLibrary" (click)="toggleLibrary(anime)">
+                  {{ anime.inLibrary ? 'En biblioteca' : 'Añadir biblioteca' }}
+                </button>
+                <button class="btn btn-sm" [class.btn-warning]="anime.isFavorite" [class.btn-outline-warning]="!anime.isFavorite" (click)="toggleFavorite(anime)">
+                  {{ anime.isFavorite ? '★ Favorito' : '☆ Favorito' }}
+                </button>
+              </div>
+            </td>
             <td class="text-end">
-              <a class="btn btn-sm btn-outline-primary me-2" [routerLink]="['/animes', anime._id]">Detail</a>
-              <a class="btn btn-sm btn-outline-secondary me-2" [routerLink]="['/animes', anime._id, 'edit']">Edit</a>
-              <button class="btn btn-sm btn-outline-danger" (click)="openDelete(anime)">Delete</button>
+              <a class="btn btn-sm btn-outline-primary me-2" [routerLink]="['/animes', anime._id]">Detalle</a>
+              <a class="btn btn-sm btn-outline-secondary me-2" [routerLink]="['/animes', anime._id, 'edit']">Editar</a>
+              <button class="btn btn-sm btn-outline-danger" (click)="openDelete(anime)">Eliminar</button>
             </td>
           </tr>
-          <tr *ngIf="animes.length === 0"><td colspan="7" class="text-center">No animes found.</td></tr>
+          <tr *ngIf="animes.length === 0"><td colspan="8" class="text-center">No hay animes en esta sección.</td></tr>
         </tbody>
       </table>
     </div>
 
     <div class="d-flex justify-content-between align-items-center" *ngIf="!loading">
-      <span>Page {{ page }} / {{ totalPages }}</span>
+      <span>Página {{ page }} / {{ totalPages }}</span>
       <div class="btn-group">
-        <button class="btn btn-outline-dark" [disabled]="page <= 1" (click)="changePage(page - 1)">Prev</button>
-        <button class="btn btn-outline-dark" [disabled]="page >= totalPages" (click)="changePage(page + 1)">Next</button>
+        <button class="btn btn-outline-dark" [disabled]="page <= 1" (click)="changePage(page - 1)">Anterior</button>
+        <button class="btn btn-outline-dark" [disabled]="page >= totalPages" (click)="changePage(page + 1)">Siguiente</button>
       </div>
     </div>
 
@@ -105,6 +121,8 @@ export class AnimeListComponent implements OnInit {
   totalPages = 1;
   deleteModalOpen = false;
   selectedAnime: Anime | null = null;
+  mode: 'catalog' | 'library' | 'favorites' = 'catalog';
+  pageTitle = 'Animes';
 
   filtersForm = this.fb.nonNullable.group({
     search: '',
@@ -117,18 +135,24 @@ export class AnimeListComponent implements OnInit {
 
   constructor(
     private readonly animeService: AnimeService,
-    private readonly studioService: StudioService
+    private readonly studioService: StudioService,
+    private readonly route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
     this.loadStudios();
-    this.loadAnimes();
+    this.route.data.subscribe((data) => {
+      this.mode = (data['mode'] as 'catalog' | 'library' | 'favorites') || 'catalog';
+      this.pageTitle = this.mode === 'library' ? 'Mi Biblioteca' : this.mode === 'favorites' ? 'Mis Favoritos' : 'Animes';
+      this.page = 1;
+      this.loadAnimes();
+    });
   }
 
   loadStudios(): void {
     this.studioService.getAll().subscribe({
       next: (studios) => (this.studios = studios),
-      error: () => (this.errorMessage = 'Failed to load studios.'),
+      error: () => (this.errorMessage = 'No se pudieron cargar los estudios.'),
     });
   }
 
@@ -144,6 +168,8 @@ export class AnimeListComponent implements OnInit {
         search: value.search,
         genre: value.genre,
         isOngoing: value.isOngoing,
+        inLibrary: this.mode === 'library' ? 'true' : '',
+        isFavorite: this.mode === 'favorites' ? 'true' : '',
         studioId: value.studioId,
         minRating: value.minRating,
         maxRating: value.maxRating,
@@ -155,7 +181,7 @@ export class AnimeListComponent implements OnInit {
           this.loading = false;
         },
         error: () => {
-          this.errorMessage = 'Failed to load animes.';
+          this.errorMessage = 'No se pudieron cargar los animes.';
           this.loading = false;
         },
       });
@@ -172,8 +198,8 @@ export class AnimeListComponent implements OnInit {
   }
 
   getStudioName(anime: Anime): string {
-    if (!anime.studio) return 'N/A';
-    return typeof anime.studio === 'string' ? 'Assigned' : anime.studio.name;
+    if (!anime.studio) return 'N/D';
+    return typeof anime.studio === 'string' ? 'Asignado' : anime.studio.name;
   }
 
   openDelete(anime: Anime): void {
@@ -191,13 +217,39 @@ export class AnimeListComponent implements OnInit {
 
     this.animeService.remove(this.selectedAnime._id).subscribe({
       next: () => {
-        this.successMessage = 'Anime deleted successfully.';
+        this.successMessage = 'Anime eliminado correctamente.';
         this.closeDelete();
         this.loadAnimes();
       },
       error: () => {
-        this.errorMessage = 'Failed to delete anime.';
+        this.errorMessage = 'No se pudo eliminar el anime.';
         this.closeDelete();
+      },
+    });
+  }
+
+  toggleLibrary(anime: Anime): void {
+    if (!anime._id) return;
+    this.animeService.update(anime._id, { inLibrary: !anime.inLibrary }).subscribe({
+      next: () => {
+        this.successMessage = anime.inLibrary ? 'Eliminado de la biblioteca.' : 'Añadido a la biblioteca.';
+        this.loadAnimes();
+      },
+      error: () => {
+        this.errorMessage = 'No se pudo actualizar la biblioteca.';
+      },
+    });
+  }
+
+  toggleFavorite(anime: Anime): void {
+    if (!anime._id) return;
+    this.animeService.update(anime._id, { isFavorite: !anime.isFavorite }).subscribe({
+      next: () => {
+        this.successMessage = anime.isFavorite ? 'Eliminado de favoritos.' : 'Añadido a favoritos.';
+        this.loadAnimes();
+      },
+      error: () => {
+        this.errorMessage = 'No se pudo actualizar favoritos.';
       },
     });
   }

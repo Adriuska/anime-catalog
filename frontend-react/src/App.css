@@ -1,12 +1,15 @@
 #root {
   min-height: 100vh;
-  background: linear-gradient(180deg, #f6f8ff 0%, #f7f7fb 46%, #ffffff 100%);
+  background:
+    radial-gradient(circle at 15% 10%, rgba(95, 123, 255, 0.14), transparent 34%),
+    radial-gradient(circle at 85% 0%, rgba(174, 96, 255, 0.16), transparent 32%),
+    linear-gradient(180deg, #090b16 0%, #0d1120 52%, #090b16 100%);
 }
 
 .app-navbar {
-  background: linear-gradient(110deg, #191d33 0%, #3a2a72 50%, #5b2f91 100%);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 0.65rem 1.4rem rgba(20, 12, 46, 0.28);
+  background: linear-gradient(110deg, #12162a 0%, #291f4f 50%, #452366 100%);
+  border-bottom: 1px solid rgba(136, 154, 255, 0.22);
+  box-shadow: 0 0.65rem 1.4rem rgba(8, 5, 24, 0.45);
 }
 
 .app-brand {
@@ -17,6 +20,16 @@
 
 .app-brand:hover {
   color: #f8f9ff;
+}
+
+.brand-dot {
+  width: 10px;
+  height: 10px;
+  display: inline-block;
+  border-radius: 999px;
+  margin-right: 0.45rem;
+  background: linear-gradient(120deg, #69dbff, #a5d8ff);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.15);
 }
 
 .app-nav-links {
@@ -40,13 +53,50 @@
   background: rgba(255, 255, 255, 0.2);
 }
 
+.app-hero-shell {
+  border-radius: 1rem;
+  padding: 1.2rem 1.25rem;
+  background: linear-gradient(140deg, rgba(18, 24, 46, 0.93), rgba(13, 17, 33, 0.92));
+  border: 1px solid rgba(129, 147, 255, 0.28);
+  box-shadow: 0 0.6rem 1.6rem rgba(4, 7, 20, 0.35);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.app-kicker {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: #8fa1df;
+  margin-bottom: 0.3rem;
+  font-weight: 700;
+}
+
+.app-hero-title {
+  font-size: clamp(1.1rem, 1.8vw, 1.5rem);
+  margin-bottom: 0.35rem;
+}
+
+.app-hero-copy {
+  color: #b2c0ed;
+  max-width: 60ch;
+}
+
+.app-hero-actions {
+  display: flex;
+  gap: 0.6rem;
+}
+
 .anime-card {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .anime-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 0.75rem 1.25rem rgba(33, 37, 41, 0.15) !important;
+  box-shadow: 0 0.75rem 1.35rem rgba(17, 25, 58, 0.42) !important;
 }
 
 .anime-poster {
@@ -63,7 +113,7 @@
 }
 
 .anime-hero {
-  background: linear-gradient(135deg, rgba(13, 110, 253, 0.08), rgba(255, 193, 7, 0.08));
+  background: linear-gradient(135deg, rgba(77, 109, 255, 0.16), rgba(188, 117, 255, 0.14));
 }
 
 .anime-detail-banner {
@@ -87,4 +137,13 @@
   max-height: 420px;
   object-fit: cover;
   width: 100%;
+}
+
+.app-footer {
+  margin-top: 1.5rem;
+  border-top: 1px solid rgba(120, 133, 166, 0.24);
+  background: rgba(12, 16, 31, 0.82);
+  backdrop-filter: blur(4px);
+  font-size: 0.9rem;
+  color: #a9b8eb;
 }

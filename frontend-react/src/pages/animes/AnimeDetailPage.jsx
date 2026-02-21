@@ -21,7 +21,7 @@ export default function AnimeDetailPage() {
         const { data } = await api.get(`/animes/${id}`);
         setAnime(data);
       } catch {
-        setError('Failed to load anime.');
+        setError('No se pudo cargar el anime.');
       } finally {
         setLoading(false);
       }
@@ -35,19 +35,38 @@ export default function AnimeDetailPage() {
       await api.delete(`/animes/${id}`);
       navigate('/animes');
     } catch {
-      setError('Failed to delete anime.');
+      setError('No se pudo eliminar el anime.');
       setDeleteOpen(false);
     }
   };
 
-  const fallbackBanner = getAnimeImageByTitle(anime?.title, 'banner');
+  const handleToggleLibrary = async () => {
+    if (!anime?._id) return;
+    try {
+      const { data } = await api.patch(`/animes/${anime._id}`, { inLibrary: !anime.inLibrary });
+      setAnime(data);
+    } catch {
+      setError('No se pudo actualizar el estado de biblioteca.');
+    }
+  };
+
+  const handleToggleFavorite = async () => {
+    if (!anime?._id) return;
+    try {
+      const { data } = await api.patch(`/animes/${anime._id}`, { isFavorite: !anime.isFavorite });
+      setAnime(data);
+    } catch {
+      setError('No se pudo actualizar el estado de favorito.');
+    }
+  };
+
   const fallbackPoster = getAnimeImageByTitle(anime?.title, 'poster');
 
   return (
     <>
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <h2 className="mb-0">Anime Detail</h2>
-        <Link className="btn btn-outline-secondary" to="/animes">Back</Link>
+        <h2 className="mb-0">Detalle del anime</h2>
+        <Link className="btn btn-outline-secondary" to="/animes">Volver</Link>
       </div>
       <AlertMessage message={error} type="danger" />
       <Loader visible={loading} />
@@ -58,7 +77,9 @@ export default function AnimeDetailPage() {
             <div className="anime-detail-overlay">
               <div className="d-flex flex-wrap gap-2 mb-3">
                 <span className="badge text-bg-warning">★ {anime.rating?.toFixed(1)}</span>
-                <span className="badge text-bg-dark">{anime.isOngoing ? 'Ongoing' : 'Finished'}</span>
+                <span className="badge text-bg-dark">{anime.isOngoing ? 'En emisión' : 'Finalizado'}</span>
+                {anime.inLibrary && <span className="badge badge-library">En biblioteca</span>}
+                {anime.isFavorite && <span className="badge badge-favorite">★ Favorito</span>}
                 {anime.ageRating && <span className="badge text-bg-secondary">{anime.ageRating}</span>}
               </div>
               <h3 className="mb-2">{anime.title}</h3>
@@ -82,19 +103,19 @@ export default function AnimeDetailPage() {
               </div>
               <div className="col-md-8 col-lg-9">
                 <div className="row g-3 mb-3">
-                  <div className="col-sm-6 col-lg-3"><div className="small text-secondary">Episodes</div><div className="fw-semibold">{anime.episodes}</div></div>
-                  <div className="col-sm-6 col-lg-3"><div className="small text-secondary">Year</div><div className="fw-semibold">{anime.year || 'N/A'}</div></div>
-                  <div className="col-sm-6 col-lg-3"><div className="small text-secondary">Season</div><div className="fw-semibold">{anime.season || 'N/A'}</div></div>
-                  <div className="col-sm-6 col-lg-3"><div className="small text-secondary">Duration</div><div className="fw-semibold">{anime.durationMinutes ? `${anime.durationMinutes} min` : 'N/A'}</div></div>
+                  <div className="col-sm-6 col-lg-3"><div className="small text-secondary">Episodios</div><div className="fw-semibold">{anime.episodes}</div></div>
+                  <div className="col-sm-6 col-lg-3"><div className="small text-secondary">Año</div><div className="fw-semibold">{anime.year || 'N/D'}</div></div>
+                  <div className="col-sm-6 col-lg-3"><div className="small text-secondary">Temporada</div><div className="fw-semibold">{anime.season || 'N/D'}</div></div>
+                  <div className="col-sm-6 col-lg-3"><div className="small text-secondary">Duración</div><div className="fw-semibold">{anime.durationMinutes ? `${anime.durationMinutes} min` : 'N/D'}</div></div>
                 </div>
 
                 <div className="mb-3">
-                  <div className="small text-secondary mb-1">Studio</div>
-                  <div className="fw-semibold">{anime.studio?.name || 'Independent'}</div>
+                  <div className="small text-secondary mb-1">Estudio</div>
+                  <div className="fw-semibold">{anime.studio?.name || 'Independiente'}</div>
                 </div>
 
                 <div className="mb-4">
-                  <div className="small text-secondary mb-2">Genres</div>
+                  <div className="small text-secondary mb-2">Géneros</div>
                   <div className="d-flex flex-wrap gap-2">
                     {anime.genres.map((genre) => (
                       <span key={genre} className="badge rounded-pill text-bg-light border">{genre}</span>
@@ -103,9 +124,15 @@ export default function AnimeDetailPage() {
                 </div>
 
                 <div className="d-flex flex-wrap gap-2">
-                  <Link className="btn btn-primary" to={`/animes/${anime._id}/edit`}>Edit</Link>
-                  <button className="btn btn-danger" onClick={() => setDeleteOpen(true)}>Delete</button>
-                  {anime.trailerUrl && <a className="btn btn-outline-dark" href={anime.trailerUrl} target="_blank" rel="noreferrer">Watch trailer</a>}
+                  <Link className="btn btn-primary" to={`/animes/${anime._id}/edit`}>Editar</Link>
+                  <button className="btn btn-danger" onClick={() => setDeleteOpen(true)}>Eliminar</button>
+                  <button className={`btn ${anime.inLibrary ? 'btn-primary' : 'btn-outline-primary'}`} onClick={handleToggleLibrary}>
+                    {anime.inLibrary ? 'En biblioteca' : 'Añadir a biblioteca'}
+                  </button>
+                  <button className={`btn ${anime.isFavorite ? 'btn-warning' : 'btn-outline-warning'}`} onClick={handleToggleFavorite}>
+                    {anime.isFavorite ? '★ Favorito' : '☆ Favorito'}
+                  </button>
+                  {anime.trailerUrl && <a className="btn btn-outline-dark" href={anime.trailerUrl} target="_blank" rel="noreferrer">Ver tráiler</a>}
                 </div>
               </div>
             </div>
@@ -115,7 +142,7 @@ export default function AnimeDetailPage() {
 
       <ConfirmModal
         open={deleteOpen}
-        message={`Delete anime ${anime?.title || ''}?`}
+        message={`¿Eliminar anime ${anime?.title || ''}?`}
         onCancel={() => setDeleteOpen(false)}
         onConfirm={handleDelete}
       />

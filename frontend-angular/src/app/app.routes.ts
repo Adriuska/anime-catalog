@@ -8,7 +8,9 @@ import { StudioFormComponent } from './pages/studios/studio-form.component';
 
 export const routes: Routes = [
 	{ path: '', pathMatch: 'full', redirectTo: 'animes' },
-	{ path: 'animes', component: AnimeListComponent },
+	{ path: 'animes', component: AnimeListComponent, data: { mode: 'catalog' } },
+	{ path: 'library', component: AnimeListComponent, data: { mode: 'library' } },
+	{ path: 'favorites', component: AnimeListComponent, data: { mode: 'favorites' } },
 	{ path: 'animes/new', component: AnimeFormComponent },
 	{ path: 'animes/:id', component: AnimeDetailComponent },
 	{ path: 'animes/:id/edit', component: AnimeFormComponent },

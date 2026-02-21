@@ -10,6 +10,8 @@ export interface Anime {
   releaseDate: string;
   isOngoing: boolean;
   rating: number;
+  inLibrary?: boolean;
+  isFavorite?: boolean;
   genres: string[];
   studio?: string | Studio;
   createdAt?: string;

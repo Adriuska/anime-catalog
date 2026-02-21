@@ -32,7 +32,7 @@ export default function StudioFormPage() {
           isActive: data.isActive,
         });
       } catch {
-        setError('Failed to load studio.');
+        setError('No se pudo cargar el estudio.');
       } finally {
         setLoading(false);
       }
@@ -49,7 +49,7 @@ export default function StudioFormPage() {
   const submit = async (event) => {
     event.preventDefault();
     if (!form.name.trim()) {
-      setError('Name is required.');
+      setError('El nombre es obligatorio.');
       return;
     }
 
@@ -71,7 +71,7 @@ export default function StudioFormPage() {
 
       navigate('/studios');
     } catch {
-      setError('Failed to save studio.');
+      setError('No se pudo guardar el estudio.');
       setLoading(false);
     }
   };
@@ -79,20 +79,20 @@ export default function StudioFormPage() {
   return (
     <>
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <h2 className="mb-0">{isEdit ? 'Edit Studio' : 'New Studio'}</h2>
-        <Link className="btn btn-outline-secondary" to="/studios">Back</Link>
+        <h2 className="mb-0">{isEdit ? 'Editar estudio' : 'Nuevo estudio'}</h2>
+        <Link className="btn btn-outline-secondary" to="/studios">Volver</Link>
       </div>
 
       <AlertMessage message={error} type="danger" />
 
       <form className="card card-body" onSubmit={submit}>
         <div className="row g-3">
-          <div className="col-md-6"><label className="form-label">Name</label><input className="form-control" name="name" value={form.name} onChange={handleChange} /></div>
-          <div className="col-md-6"><label className="form-label">Country</label><input className="form-control" name="country" value={form.country} onChange={handleChange} /></div>
-          <div className="col-md-4"><label className="form-label">Founded Date</label><input type="date" className="form-control" name="foundedDate" value={form.foundedDate} onChange={handleChange} /></div>
-          <div className="col-md-4 d-flex align-items-end"><div className="form-check"><input id="isActive" type="checkbox" className="form-check-input" name="isActive" checked={form.isActive} onChange={handleChange} /><label className="form-check-label" htmlFor="isActive">Active</label></div></div>
+          <div className="col-md-6"><label className="form-label">Nombre</label><input className="form-control" name="name" value={form.name} onChange={handleChange} /></div>
+          <div className="col-md-6"><label className="form-label">País</label><input className="form-control" name="country" value={form.country} onChange={handleChange} /></div>
+          <div className="col-md-4"><label className="form-label">Fecha de fundación</label><input type="date" className="form-control" name="foundedDate" value={form.foundedDate} onChange={handleChange} /></div>
+          <div className="col-md-4 d-flex align-items-end"><div className="form-check"><input id="isActive" type="checkbox" className="form-check-input" name="isActive" checked={form.isActive} onChange={handleChange} /><label className="form-check-label" htmlFor="isActive">Activo</label></div></div>
         </div>
-        <div className="mt-3"><button className="btn btn-primary" disabled={loading} type="submit">{isEdit ? 'Update' : 'Create'}</button></div>
+        <div className="mt-3"><button className="btn btn-primary" disabled={loading} type="submit">{isEdit ? 'Actualizar' : 'Crear'}</button></div>
       </form>
 
       <Loader visible={loading} />

@@ -15,30 +15,30 @@ import { getAnimeImageByTitle } from '../../core/anime-images';
   imports: [CommonModule, ReactiveFormsModule, RouterLink, LoaderComponent, AlertComponent],
   template: `
     <div class="d-flex justify-content-between align-items-center mb-3">
-      <h2 class="mb-0">{{ isEdit ? 'Edit Anime' : 'New Anime' }}</h2>
-      <a class="btn btn-outline-secondary" routerLink="/animes">Back</a>
+      <h2 class="mb-0">{{ isEdit ? 'Editar anime' : 'Nuevo anime' }}</h2>
+      <a class="btn btn-outline-secondary" routerLink="/animes">Volver</a>
     </div>
 
     <app-alert [message]="errorMessage" type="danger"></app-alert>
 
     <form class="card card-body" [formGroup]="form" (ngSubmit)="submit()">
       <div class="row g-3">
-        <div class="col-md-6"><label class="form-label">Title</label><input class="form-control" formControlName="title" /></div>
-        <div class="col-md-6"><label class="form-label">Poster URL</label><input class="form-control" formControlName="posterUrl" /></div>
-        <div class="col-md-6"><label class="form-label">Banner URL (optional)</label><input class="form-control" formControlName="bannerUrl" /></div>
+        <div class="col-md-6"><label class="form-label">Título</label><input class="form-control" formControlName="title" /></div>
+        <div class="col-md-6"><label class="form-label">URL del póster</label><input class="form-control" formControlName="posterUrl" /></div>
+        <div class="col-md-6"><label class="form-label">URL del banner (opcional)</label><input class="form-control" formControlName="bannerUrl" /></div>
         <div class="col-md-6"></div>
         <div class="col-md-6">
           <div class="card h-100 border-0 shadow-sm">
             <img
               [src]="form.controls.posterUrl.value || suggestedPosterUrl"
-              alt="Poster preview"
+              alt="Vista previa del póster"
               class="card-img-top"
               style="height: 320px; object-fit: cover;"
               (error)="onPreviewError($event, suggestedPosterUrl)"
             />
             <div class="card-body py-2 px-3">
-              <div class="small text-secondary mb-2">Suggested poster based on title</div>
-              <button type="button" class="btn btn-sm btn-outline-primary" (click)="applySuggestedUrl('poster')">Use suggested poster</button>
+              <div class="small text-secondary mb-2">Póster sugerido según el título</div>
+              <button type="button" class="btn btn-sm btn-outline-primary" (click)="applySuggestedUrl('poster')">Usar póster sugerido</button>
             </div>
           </div>
         </div>
@@ -46,35 +46,35 @@ import { getAnimeImageByTitle } from '../../core/anime-images';
           <div class="card h-100 border-0 shadow-sm">
             <img
               [src]="form.controls.bannerUrl.value || suggestedBannerUrl"
-              alt="Banner preview"
+              alt="Vista previa del banner"
               class="card-img-top"
               style="height: 170px; object-fit: cover;"
               (error)="onPreviewError($event, suggestedBannerUrl)"
             />
             <div class="card-body py-2 px-3">
-              <div class="small text-secondary mb-2">Suggested banner based on title</div>
-              <button type="button" class="btn btn-sm btn-outline-primary" (click)="applySuggestedUrl('banner')">Use suggested banner</button>
+              <div class="small text-secondary mb-2">Banner sugerido según el título</div>
+              <button type="button" class="btn btn-sm btn-outline-primary" (click)="applySuggestedUrl('banner')">Usar banner sugerido</button>
             </div>
           </div>
         </div>
-        <div class="col-12"><label class="form-label">Description</label><textarea class="form-control" rows="3" formControlName="description"></textarea></div>
-        <div class="col-md-2"><label class="form-label">Episodes</label><input type="number" class="form-control" formControlName="episodes" /></div>
-        <div class="col-md-2"><label class="form-label">Rating</label><input type="number" step="0.1" class="form-control" formControlName="rating" /></div>
-        <div class="col-md-3"><label class="form-label">Release Date</label><input type="date" class="form-control" formControlName="releaseDate" /></div>
+        <div class="col-12"><label class="form-label">Descripción</label><textarea class="form-control" rows="3" formControlName="description"></textarea></div>
+        <div class="col-md-2"><label class="form-label">Episodios</label><input type="number" class="form-control" formControlName="episodes" /></div>
+        <div class="col-md-2"><label class="form-label">Puntuación</label><input type="number" step="0.1" class="form-control" formControlName="rating" /></div>
+        <div class="col-md-3"><label class="form-label">Fecha de estreno</label><input type="date" class="form-control" formControlName="releaseDate" /></div>
         <div class="col-md-3">
-          <label class="form-label">Studio</label>
+          <label class="form-label">Estudio</label>
           <select class="form-select" formControlName="studio">
-            <option value="">No studio</option>
+            <option value="">Sin estudio</option>
             <option *ngFor="let studio of studios" [value]="studio._id">{{ studio.name }}</option>
           </select>
         </div>
         <div class="col-md-2 d-flex align-items-end">
-          <div class="form-check"><input id="ongoing" type="checkbox" class="form-check-input" formControlName="isOngoing" /><label class="form-check-label" for="ongoing">Ongoing</label></div>
+          <div class="form-check"><input id="ongoing" type="checkbox" class="form-check-input" formControlName="isOngoing" /><label class="form-check-label" for="ongoing">En emisión</label></div>
         </div>
-        <div class="col-12"><label class="form-label">Genres (comma separated)</label><input class="form-control" formControlName="genres" /></div>
+        <div class="col-12"><label class="form-label">Géneros (separados por coma)</label><input class="form-control" formControlName="genres" /></div>
       </div>
 
-      <div class="mt-3"><button class="btn btn-primary" [disabled]="form.invalid || loading" type="submit">{{ isEdit ? 'Update' : 'Create' }}</button></div>
+      <div class="mt-3"><button class="btn btn-primary" [disabled]="form.invalid || loading" type="submit">{{ isEdit ? 'Actualizar' : 'Crear' }}</button></div>
     </form>
 
     <app-loader [visible]="loading"></app-loader>
@@ -126,7 +126,7 @@ export class AnimeFormComponent implements OnInit {
   loadStudios(): void {
     this.studioService.getAll().subscribe({
       next: (studios) => (this.studios = studios),
-      error: () => (this.errorMessage = 'Failed to load studios.'),
+      error: () => (this.errorMessage = 'No se pudieron cargar los estudios.'),
     });
   }
 
@@ -152,7 +152,7 @@ export class AnimeFormComponent implements OnInit {
         this.loading = false;
       },
       error: () => {
-        this.errorMessage = 'Failed to load anime.';
+        this.errorMessage = 'No se pudo cargar el anime.';
         this.loading = false;
       },
     });
@@ -186,7 +186,7 @@ export class AnimeFormComponent implements OnInit {
     request$.subscribe({
       next: () => this.router.navigate(['/animes']),
       error: () => {
-        this.errorMessage = 'Failed to save anime.';
+        this.errorMessage = 'No se pudo guardar el anime.';
         this.loading = false;
       },
     });

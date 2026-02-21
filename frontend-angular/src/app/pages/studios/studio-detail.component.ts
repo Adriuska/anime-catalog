@@ -13,8 +13,8 @@ import { ConfirmModalComponent } from '../../shared/confirm-modal.component';
   imports: [CommonModule, RouterLink, LoaderComponent, AlertComponent, ConfirmModalComponent],
   template: `
     <div class="d-flex justify-content-between mb-3">
-      <h2 class="mb-0">Studio Detail</h2>
-      <a class="btn btn-outline-secondary" routerLink="/studios">Back</a>
+      <h2 class="mb-0">Detalle del estudio</h2>
+      <a class="btn btn-outline-secondary" routerLink="/studios">Volver</a>
     </div>
 
     <app-alert [message]="errorMessage" type="danger"></app-alert>
@@ -23,19 +23,19 @@ import { ConfirmModalComponent } from '../../shared/confirm-modal.component';
     <div class="card" *ngIf="studio && !loading">
       <div class="card-body">
         <h4>{{ studio.name }}</h4>
-        <p><strong>Country:</strong> {{ studio.country || 'N/A' }}</p>
-        <p><strong>Founded:</strong> {{ studio.foundedDate ? (studio.foundedDate | date) : 'N/A' }}</p>
-        <p><strong>Active:</strong> {{ studio.isActive ? 'Yes' : 'No' }}</p>
+        <p><strong>País:</strong> {{ studio.country || 'N/D' }}</p>
+        <p><strong>Fundado:</strong> {{ studio.foundedDate ? (studio.foundedDate | date) : 'N/D' }}</p>
+        <p><strong>Activo:</strong> {{ studio.isActive ? 'Sí' : 'No' }}</p>
         <div class="d-flex gap-2">
-          <a class="btn btn-primary" [routerLink]="['/studios', studio._id, 'edit']">Edit</a>
-          <button class="btn btn-danger" (click)="deleteModalOpen = true">Delete</button>
+          <a class="btn btn-primary" [routerLink]="['/studios', studio._id, 'edit']">Editar</a>
+          <button class="btn btn-danger" (click)="deleteModalOpen = true">Eliminar</button>
         </div>
       </div>
     </div>
 
     <app-confirm-modal
       [open]="deleteModalOpen"
-      [message]="'Delete studio ' + (studio?.name || '') + '?'"
+      [message]="'¿Eliminar estudio ' + (studio?.name || '') + '?'"
       (cancel)="deleteModalOpen = false"
       (confirm)="deleteStudio()"
     ></app-confirm-modal>
@@ -56,7 +56,7 @@ export class StudioDetailComponent implements OnInit {
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) {
-      this.errorMessage = 'Studio id is required.';
+      this.errorMessage = 'El id del estudio es obligatorio.';
       return;
     }
 
@@ -67,7 +67,7 @@ export class StudioDetailComponent implements OnInit {
         this.loading = false;
       },
       error: () => {
-        this.errorMessage = 'Failed to load studio.';
+        this.errorMessage = 'No se pudo cargar el estudio.';
         this.loading = false;
       },
     });
@@ -81,7 +81,7 @@ export class StudioDetailComponent implements OnInit {
     this.studioService.remove(this.studio._id).subscribe({
       next: () => this.router.navigate(['/studios']),
       error: () => {
-        this.errorMessage = 'Failed to delete studio.';
+        this.errorMessage = 'No se pudo eliminar el estudio.';
         this.deleteModalOpen = false;
       },
     });

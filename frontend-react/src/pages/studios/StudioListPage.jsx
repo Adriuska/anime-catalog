@@ -18,7 +18,7 @@ export default function StudioListPage() {
       const { data } = await api.get('/studios');
       setStudios(data);
     } catch {
-      setError('Failed to load studios.');
+      setError('No se pudieron cargar los estudios.');
     } finally {
       setLoading(false);
     }
@@ -32,11 +32,11 @@ export default function StudioListPage() {
     if (!selectedStudio?._id) return;
     try {
       await api.delete(`/studios/${selectedStudio._id}`);
-      setSuccess('Studio deleted successfully.');
+      setSuccess('Estudio eliminado correctamente.');
       setSelectedStudio(null);
       loadStudios();
     } catch {
-      setError('Failed to delete studio.');
+      setError('No se pudo eliminar el estudio.');
       setSelectedStudio(null);
     }
   };
@@ -44,8 +44,8 @@ export default function StudioListPage() {
   return (
     <>
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <h2 className="mb-0">Studios</h2>
-        <Link className="btn btn-primary" to="/studios/new">New Studio</Link>
+        <h2 className="mb-0">Estudios</h2>
+        <Link className="btn btn-primary" to="/studios/new">Nuevo estudio</Link>
       </div>
 
       <AlertMessage message={error} type="danger" />
@@ -56,22 +56,22 @@ export default function StudioListPage() {
         <div className="table-responsive">
           <table className="table table-striped align-middle">
             <thead>
-              <tr><th>Name</th><th>Country</th><th>Active</th><th className="text-end">Actions</th></tr>
+              <tr><th>Nombre</th><th>País</th><th>Activo</th><th className="text-end">Acciones</th></tr>
             </thead>
             <tbody>
               {studios.map((studio) => (
                 <tr key={studio._id}>
                   <td>{studio.name}</td>
-                  <td>{studio.country || 'N/A'}</td>
-                  <td>{studio.isActive ? 'Yes' : 'No'}</td>
+                  <td>{studio.country || 'N/D'}</td>
+                  <td>{studio.isActive ? 'Sí' : 'No'}</td>
                   <td className="text-end">
-                    <Link className="btn btn-sm btn-outline-primary me-2" to={`/studios/${studio._id}`}>Detail</Link>
-                    <Link className="btn btn-sm btn-outline-secondary me-2" to={`/studios/${studio._id}/edit`}>Edit</Link>
-                    <button className="btn btn-sm btn-outline-danger" onClick={() => setSelectedStudio(studio)}>Delete</button>
+                    <Link className="btn btn-sm btn-outline-primary me-2" to={`/studios/${studio._id}`}>Detalle</Link>
+                    <Link className="btn btn-sm btn-outline-secondary me-2" to={`/studios/${studio._id}/edit`}>Editar</Link>
+                    <button className="btn btn-sm btn-outline-danger" onClick={() => setSelectedStudio(studio)}>Eliminar</button>
                   </td>
                 </tr>
               ))}
-              {studios.length === 0 && <tr><td colSpan="4" className="text-center">No studios found.</td></tr>}
+              {studios.length === 0 && <tr><td colSpan="4" className="text-center">No se encontraron estudios.</td></tr>}
             </tbody>
           </table>
         </div>
@@ -79,7 +79,7 @@ export default function StudioListPage() {
 
       <ConfirmModal
         open={Boolean(selectedStudio)}
-        message={`Delete studio ${selectedStudio?.name || ''}?`}
+        message={`¿Eliminar estudio ${selectedStudio?.name || ''}?`}
         onCancel={() => setSelectedStudio(null)}
         onConfirm={handleDelete}
       />

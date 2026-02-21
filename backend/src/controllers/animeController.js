@@ -20,10 +20,14 @@ const sanitizeSortOrder = (order) => (order === 'asc' ? 1 : -1);
 
 const sanitizeSeason = (season) => {
   const map = {
-    winter: 'Winter',
-    spring: 'Spring',
-    summer: 'Summer',
-    fall: 'Fall',
+    winter: 'Invierno',
+    spring: 'Primavera',
+    summer: 'Verano',
+    fall: 'Otoño',
+    invierno: 'Invierno',
+    primavera: 'Primavera',
+    verano: 'Verano',
+    otoño: 'Otoño',
   };
 
   return map[String(season || '').trim().toLowerCase()] || undefined;
@@ -43,6 +47,16 @@ const buildAnimeFilters = (query) => {
   const isOngoing = toBoolean(query.isOngoing);
   if (typeof isOngoing === 'boolean') {
     filters.isOngoing = isOngoing;
+  }
+
+  const inLibrary = toBoolean(query.inLibrary);
+  if (typeof inLibrary === 'boolean') {
+    filters.inLibrary = inLibrary;
+  }
+
+  const isFavorite = toBoolean(query.isFavorite);
+  if (typeof isFavorite === 'boolean') {
+    filters.isFavorite = isFavorite;
   }
 
   if (query.studioId) {

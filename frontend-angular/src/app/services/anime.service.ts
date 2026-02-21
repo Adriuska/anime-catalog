@@ -10,6 +10,8 @@ export interface AnimeFilters {
   search?: string;
   genre?: string;
   isOngoing?: string;
+  inLibrary?: string;
+  isFavorite?: string;
   studioId?: string;
   minRating?: string;
   maxRating?: string;

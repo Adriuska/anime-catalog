@@ -10,15 +10,15 @@ import { CommonModule } from '@angular/common';
       <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">Confirm delete</h5>
+            <h5 class="modal-title">Confirmar eliminación</h5>
             <button type="button" class="btn-close" (click)="cancel.emit()"></button>
           </div>
           <div class="modal-body">
             <p class="mb-0">{{ message }}</p>
           </div>
           <div class="modal-footer">
-            <button class="btn btn-secondary" type="button" (click)="cancel.emit()">Cancel</button>
-            <button class="btn btn-danger" type="button" (click)="confirm.emit()">Delete</button>
+            <button class="btn btn-secondary" type="button" (click)="cancel.emit()">Cancelar</button>
+            <button class="btn btn-danger" type="button" (click)="confirm.emit()">Eliminar</button>
           </div>
         </div>
       </div>
@@ -28,7 +28,7 @@ import { CommonModule } from '@angular/common';
 })
 export class ConfirmModalComponent {
   @Input() open = false;
-  @Input() message = 'Are you sure?';
+  @Input() message = '¿Estás seguro?';
   @Output() confirm = new EventEmitter<void>();
   @Output() cancel = new EventEmitter<void>();
 }

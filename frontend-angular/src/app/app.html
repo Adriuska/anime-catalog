@@ -1,13 +1,21 @@
 <nav class="navbar navbar-expand-lg app-navbar">
   <div class="container">
-    <a class="navbar-brand app-brand" routerLink="/animes">AniVerse</a>
+    <a class="navbar-brand app-brand" routerLink="/animes">
+      <span class="brand-dot"></span> AniVerse
+    </a>
     <div class="collapse navbar-collapse show">
       <ul class="navbar-nav ms-auto app-nav-links">
         <li class="nav-item">
           <a class="nav-link app-nav-link" routerLink="/animes" routerLinkActive="active">Animes</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link app-nav-link" routerLink="/studios" routerLinkActive="active">Studios</a>
+          <a class="nav-link app-nav-link" routerLink="/library" routerLinkActive="active">Library</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link app-nav-link" routerLink="/favorites" routerLinkActive="active">Favorites</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link app-nav-link" routerLink="/studios" routerLinkActive="active">Estudios</a>
         </li>
       </ul>
     </div>
@@ -15,5 +23,24 @@
 </nav>
 
 <main class="container py-4">
+  <section class="app-hero-shell mb-4">
+    <div>
+      <div class="app-kicker">Anime Catalog Platform</div>
+      <h1 class="app-hero-title">Gestiona animes y estudios en un solo panel</h1>
+      <p class="app-hero-copy mb-0">Crea, filtra y organiza contenido con una experiencia más limpia para demo y presentación.</p>
+    </div>
+    <div class="app-hero-actions">
+      <a class="btn btn-primary" routerLink="/animes/new">+ Nuevo anime</a>
+      <a class="btn btn-outline-primary" routerLink="/studios/new">+ Nuevo estudio</a>
+    </div>
+  </section>
+
   <router-outlet></router-outlet>
 </main>
+
+<footer class="app-footer">
+  <div class="container d-flex flex-wrap justify-content-between align-items-center gap-2 py-3">
+    <span>AniVerse · Frontend Angular</span>
+    <span class="text-secondary">Catálogo CRUD · demo visual</span>
+  </div>
+</footer>

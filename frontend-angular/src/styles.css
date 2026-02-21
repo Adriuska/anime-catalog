@@ -1,5 +1,122 @@
 body {
-	background: linear-gradient(180deg, #f6f8ff 0%, #f7f7fb 46%, #ffffff 100%);
+	background:
+		radial-gradient(circle at 15% 10%, rgba(95, 123, 255, 0.14), transparent 34%),
+		radial-gradient(circle at 85% 0%, rgba(174, 96, 255, 0.16), transparent 32%),
+		linear-gradient(180deg, #090b16 0%, #0d1120 52%, #090b16 100%);
+	color: #e6ecff;
+	font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
 }
 
-/* You can add global styles to this file, and also import other style files */
+.card {
+	border-radius: 0.95rem;
+	border: 1px solid rgba(120, 141, 255, 0.2);
+	background: linear-gradient(160deg, rgba(17, 22, 40, 0.96), rgba(12, 16, 31, 0.95));
+	color: #e6ecff;
+}
+
+.table {
+	border-radius: 0.8rem;
+	overflow: hidden;
+	background: rgba(12, 16, 30, 0.9);
+	color: #dce5ff;
+}
+
+.table thead th {
+	background: rgba(26, 33, 63, 0.92);
+	color: #a9b8eb;
+	font-size: 0.82rem;
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
+	border-color: rgba(103, 122, 214, 0.35);
+}
+
+.table td,
+.table th {
+	border-color: rgba(103, 122, 214, 0.25);
+}
+
+.form-control,
+.form-select {
+	border-radius: 0.7rem;
+	border-color: rgba(115, 134, 230, 0.5);
+	background: rgba(12, 17, 33, 0.9);
+	color: #eaf0ff;
+}
+
+.form-control::placeholder {
+	color: #8e9dcf;
+}
+
+.form-control:focus,
+.form-select:focus {
+	border-color: #7f95ff;
+	background: rgba(12, 17, 33, 0.95);
+	color: #ffffff;
+	box-shadow: 0 0 0 0.2rem rgba(101, 126, 255, 0.24);
+}
+
+.btn {
+	border-radius: 0.72rem;
+	font-weight: 600;
+	letter-spacing: 0.01em;
+}
+
+.btn-primary {
+	background: linear-gradient(120deg, #5f7bff, #4a5ce0);
+	border-color: #4a5ce0;
+	color: #f7f9ff;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+	background: linear-gradient(120deg, #536de6, #3f4fc5);
+	border-color: #3f4fc5;
+}
+
+.btn-outline-primary {
+	border-color: #7e90f0;
+	color: #9aabff;
+}
+
+.btn-outline-primary:hover {
+	background: rgba(88, 110, 255, 0.18);
+	border-color: #667eff;
+	color: #d6dfff;
+}
+
+.btn-outline-secondary {
+	border-color: #586080;
+	color: #b8c3eb;
+}
+
+.btn-outline-secondary:hover {
+	background: rgba(125, 139, 195, 0.18);
+	color: #e4ecff;
+}
+
+.btn-outline-dark {
+	border-color: #616a8f;
+	color: #b8c3eb;
+}
+
+.btn-outline-dark:hover {
+	background: rgba(125, 139, 195, 0.18);
+	color: #e8eeff;
+}
+
+.text-secondary,
+.small.text-secondary {
+	color: #98a6d4 !important;
+}
+
+.badge-library {
+	background: rgba(96, 126, 255, 0.2);
+	color: #c9d6ff;
+	border: 1px solid rgba(106, 134, 255, 0.5);
+}
+
+.badge-favorite {
+	background: rgba(255, 188, 68, 0.2);
+	color: #ffe6ab;
+	border: 1px solid rgba(255, 193, 77, 0.5);
+}

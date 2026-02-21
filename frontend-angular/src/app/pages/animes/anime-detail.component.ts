@@ -14,8 +14,8 @@ import { getAnimeImageByTitle, getPreferredAnimeImage } from '../../core/anime-i
   imports: [CommonModule, RouterLink, LoaderComponent, AlertComponent, ConfirmModalComponent],
   template: `
     <div class="d-flex justify-content-between mb-3">
-      <h2 class="mb-0">Anime Detail</h2>
-      <a class="btn btn-outline-secondary" routerLink="/animes">Back</a>
+      <h2 class="mb-0">Detalle del anime</h2>
+      <a class="btn btn-outline-secondary" routerLink="/animes">Volver</a>
     </div>
 
     <app-alert [message]="errorMessage" type="danger"></app-alert>
@@ -29,7 +29,9 @@ import { getAnimeImageByTitle, getPreferredAnimeImage } from '../../core/anime-i
       >
         <div class="d-flex gap-2 mb-2">
           <span class="badge text-bg-warning">★ {{ anime.rating | number: '1.1-1' }}</span>
-          <span class="badge text-bg-dark">{{ anime.isOngoing ? 'Ongoing' : 'Finished' }}</span>
+          <span class="badge text-bg-dark">{{ anime.isOngoing ? 'En emisión' : 'Finalizado' }}</span>
+          <span class="badge badge-library" *ngIf="anime.inLibrary">En biblioteca</span>
+          <span class="badge badge-favorite" *ngIf="anime.isFavorite">★ Favorito</span>
         </div>
         <h3 class="mb-1">{{ anime.title }}</h3>
         <p class="mb-0 text-light">{{ anime.description }}</p>
@@ -47,13 +49,19 @@ import { getAnimeImageByTitle, getPreferredAnimeImage } from '../../core/anime-i
         </div>
         <div class="col-md-9">
           <div class="card-body">
-            <p><strong>Episodes:</strong> {{ anime.episodes }}</p>
-            <p><strong>Rating:</strong> {{ anime.rating }}</p>
-            <p><strong>Genres:</strong> {{ anime.genres.join(', ') }}</p>
-            <p><strong>Status:</strong> {{ anime.isOngoing ? 'Ongoing' : 'Finished' }}</p>
+            <p><strong>Episodios:</strong> {{ anime.episodes }}</p>
+            <p><strong>Puntuación:</strong> {{ anime.rating }}</p>
+            <p><strong>Géneros:</strong> {{ anime.genres.join(', ') }}</p>
+            <p><strong>Estado:</strong> {{ anime.isOngoing ? 'En emisión' : 'Finalizado' }}</p>
             <div class="d-flex gap-2">
-              <a class="btn btn-primary" [routerLink]="['/animes', anime._id, 'edit']">Edit</a>
-              <button class="btn btn-danger" (click)="deleteModalOpen = true">Delete</button>
+              <a class="btn btn-primary" [routerLink]="['/animes', anime._id, 'edit']">Editar</a>
+              <button class="btn btn-danger" (click)="deleteModalOpen = true">Eliminar</button>
+              <button class="btn" [class.btn-primary]="anime.inLibrary" [class.btn-outline-primary]="!anime.inLibrary" (click)="toggleLibrary()">
+                {{ anime.inLibrary ? 'En biblioteca' : 'Añadir a biblioteca' }}
+              </button>
+              <button class="btn" [class.btn-warning]="anime.isFavorite" [class.btn-outline-warning]="!anime.isFavorite" (click)="toggleFavorite()">
+                {{ anime.isFavorite ? '★ Favorito' : '☆ Favorito' }}
+              </button>
             </div>
           </div>
         </div>
@@ -62,7 +70,7 @@ import { getAnimeImageByTitle, getPreferredAnimeImage } from '../../core/anime-i
 
     <app-confirm-modal
       [open]="deleteModalOpen"
-      [message]="'Delete anime ' + (anime?.title || '') + '?'"
+      [message]="'¿Eliminar anime ' + (anime?.title || '') + '?'"
       (cancel)="deleteModalOpen = false"
       (confirm)="deleteAnime()"
     ></app-confirm-modal>
@@ -83,7 +91,7 @@ export class AnimeDetailComponent implements OnInit {
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) {
-      this.errorMessage = 'Anime id is required.';
+      this.errorMessage = 'El id del anime es obligatorio.';
       return;
     }
 
@@ -94,7 +102,7 @@ export class AnimeDetailComponent implements OnInit {
         this.loading = false;
       },
       error: () => {
-        this.errorMessage = 'Failed to load anime.';
+        this.errorMessage = 'No se pudo cargar el anime.';
         this.loading = false;
       },
     });
@@ -108,8 +116,32 @@ export class AnimeDetailComponent implements OnInit {
     this.animeService.remove(this.anime._id).subscribe({
       next: () => this.router.navigate(['/animes']),
       error: () => {
-        this.errorMessage = 'Failed to delete anime.';
+        this.errorMessage = 'No se pudo eliminar el anime.';
         this.deleteModalOpen = false;
+      },
+    });
+  }
+
+  toggleLibrary(): void {
+    if (!this.anime?._id) return;
+    this.animeService.update(this.anime._id, { inLibrary: !this.anime.inLibrary }).subscribe({
+      next: (anime) => {
+        this.anime = anime;
+      },
+      error: () => {
+        this.errorMessage = 'No se pudo actualizar el estado de biblioteca.';
+      },
+    });
+  }
+
+  toggleFavorite(): void {
+    if (!this.anime?._id) return;
+    this.animeService.update(this.anime._id, { isFavorite: !this.anime.isFavorite }).subscribe({
+      next: (anime) => {
+        this.anime = anime;
+      },
+      error: () => {
+        this.errorMessage = 'No se pudo actualizar el estado de favorito.';
       },
     });
   }

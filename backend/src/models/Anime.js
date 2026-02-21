@@ -2,6 +2,21 @@ const mongoose = require('mongoose');
 
 const isHttpUrl = (value) => /^https?:\/\//i.test(value);
 
+const normalizeSeason = (season) => {
+  const map = {
+    winter: 'Invierno',
+    spring: 'Primavera',
+    summer: 'Verano',
+    fall: 'Otoño',
+    otoño: 'Otoño',
+    invierno: 'Invierno',
+    primavera: 'Primavera',
+    verano: 'Verano',
+  };
+
+  return map[String(season || '').trim().toLowerCase()] || undefined;
+};
+
 const animeSchema = new mongoose.Schema(
   {
     title: {
@@ -58,7 +73,7 @@ const animeSchema = new mongoose.Schema(
     },
     season: {
       type: String,
-      enum: ['Winter', 'Spring', 'Summer', 'Fall'],
+      enum: ['Invierno', 'Primavera', 'Verano', 'Otoño'],
     },
     year: {
       type: Number,
@@ -72,6 +87,14 @@ const animeSchema = new mongoose.Schema(
     isOngoing: {
       type: Boolean,
       required: [true, 'isOngoing is required'],
+    },
+    inLibrary: {
+      type: Boolean,
+      default: false,
+    },
+    isFavorite: {
+      type: Boolean,
+      default: false,
     },
     rating: {
       type: Number,
@@ -107,6 +130,9 @@ animeSchema.pre('validate', function preValidate() {
   }
   if (!this.year && this.releaseDate) {
     this.year = new Date(this.releaseDate).getUTCFullYear();
+  }
+  if (this.season) {
+    this.season = normalizeSeason(this.season);
   }
 });
 
