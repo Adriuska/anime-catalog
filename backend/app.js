@@ -10,6 +10,14 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+app.get('/', (req, res) => {
+  res.status(200).json({
+    ok: true,
+    message: 'Anime Catalog API is running',
+    health: '/api/v1/health',
+  });
+});
+
 app.get('/api/v1/health', (req, res) => {
   res.status(200).json({ ok: true });
 });
