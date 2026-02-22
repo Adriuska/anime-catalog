@@ -196,3 +196,19 @@ npm run seed
 ```http
 GET /api/v1/animes?page=1&limit=5&search=man&genre=Action&isOngoing=true&minRating=7&maxRating=10
 ```
+
+## Deploy en Vercel
+
+Este backend está preparado para desplegarse en Vercel como función serverless.
+
+- Root Directory del proyecto en Vercel: `backend`
+- Entry point serverless: `api/index.js`
+- Config de rutas: `vercel.json`
+
+Variable obligatoria en Vercel:
+
+- `MONGODB_URI`
+
+Health check en producción:
+
+- `GET https://<tu-backend>.vercel.app/api/v1/health`

@@ -514,3 +514,46 @@ npm run test
 ## 15) Resumen ejecutivo
 
 Este repo implementa una plataforma CRUD de animes/estudios con una API REST centralizada y dos interfaces cliente (React y Angular). La lógica crítica está en backend (validación, reglas de negocio, filtros, paginación, discover, errores), y ambos frontends son consumidores de ese contrato HTTP.
+
+---
+
+## 16) Deploy en Vercel (todo en Vercel)
+
+Este monorepo se despliega en **3 proyectos separados** dentro de Vercel, todos apuntando al mismo repo de GitHub:
+
+1. Proyecto `backend` (Root Directory: `backend`)
+2. Proyecto `frontend-react` (Root Directory: `frontend-react`)
+3. Proyecto `frontend-angular` (Root Directory: `frontend-angular`)
+
+### Orden recomendado
+
+1. Desplegar `backend` primero.
+2. Copiar URL pública del backend, por ejemplo:
+   `https://anime-catalog-api.vercel.app/api/v1`
+3. Configurar esa URL en variables de entorno de los dos frontends.
+4. Desplegar `frontend-react` y `frontend-angular`.
+
+### Variables de entorno en Vercel
+
+#### Backend (`backend`)
+
+- `MONGODB_URI` = cadena de conexión MongoDB Atlas
+
+#### Frontend React (`frontend-react`)
+
+- `VITE_API_BASE_URL` = `https://<tu-backend>.vercel.app/api/v1`
+
+#### Frontend Angular (`frontend-angular`)
+
+- `NG_APP_API_BASE_URL` = `https://<tu-backend>.vercel.app/api/v1`
+
+### Archivos de referencia
+
+- Backend serverless entrypoint: `backend/api/index.js`
+- Config Vercel backend: `backend/vercel.json`
+- Base URL React: `frontend-react/src/api/axios.js`
+- Base URL Angular: `frontend-angular/src/app/core/api.config.ts`
+- Ejemplos de variables:
+  - `backend/.env.example`
+  - `frontend-react/.env.example`
+  - `frontend-angular/.env.example`
