@@ -1,8 +1,5 @@
-const dotenv = require('dotenv');
 const app = require('../app');
 const connectDB = require('../src/config/db');
-
-dotenv.config();
 
 module.exports = async (req, res) => {
   try {

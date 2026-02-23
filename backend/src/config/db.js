@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const databaseConfig = require('./database');
 
 let cachedConnection = null;
 let cachedPromise = null;
@@ -12,10 +13,10 @@ const connectDB = async () => {
     return cachedPromise;
   }
 
-  const mongoUri = process.env.MONGODB_URI;
+  const mongoUri = databaseConfig.mongoUri?.trim() || process.env.MONGODB_URI?.trim();
 
   if (!mongoUri) {
-    throw new Error('MONGODB_URI is required in environment variables');
+    throw new Error('MongoDB URI is required in src/config/database.js (mongoUri) or MONGODB_URI environment variable');
   }
 
   cachedPromise = mongoose
