@@ -1,290 +1,153 @@
-# Anime Catalog Monorepo
+# AnimeCatalog - Catálogo de Animes y Estudios
 
-Monorepo full-stack para catálogo de animes y estudios con un backend único y dos clientes frontend.
+## Descripción del Proyecto
 
-- Backend: Node.js + Express + MongoDB + Mongoose
-- Frontend React: Vite + React Router + Axios + Bootstrap
-- Frontend Angular: Angular standalone + Router + HttpClient + Bootstrap
+AnimeCatalog es una plataforma full-stack para gestionar un catálogo de animes y estudios de animación. El proyecto implementa una arquitectura con backend Node.js/Express + MongoDB y dos frontends independientes (Angular y React) que consumen la misma API REST.
 
-Ambos frontends consumen la misma API REST en `http://localhost:3000/api/v1`.
+## Problema que Resolver
 
----
+El proyecto busca centralizar la gestión de información de animes y estudios para poder:
 
-## 1) Qué hace el proyecto
+- Registrar y mantener animes con metadatos completos.
+- Relacionar cada anime con su estudio de animación.
+- Consultar y filtrar catálogos de forma eficiente.
+- Gestionar la misma información desde dos frontends distintos (Angular y React).
 
-El sistema permite gestionar:
+## Descripción Funcional
 
-- Estudios (crear, listar, ver detalle, editar, eliminar)
-- Animes (CRUD completo + filtros + paginación + endpoint de discover)
+### Funcionalidades Principales
 
-Además, incluye:
+- Gestión de Animes: CRUD completo de animes.
+- Gestión de Estudios: CRUD completo de estudios.
+- Catálogo con filtros: búsqueda, género, temporada, año, estado, estudio y rating.
+- Paginación: listado paginado para mejorar rendimiento y experiencia.
+- Discover/Home API: endpoint agregado con secciones como top, trending, ongoing y upcoming.
+- Interfaz responsiva: aplicaciones adaptadas para desktop y móvil.
 
-- Validaciones de negocio y de esquema en backend
-- Manejo centralizado de errores HTTP
-- Seed de datos iniciales (estudios + animes)
-- UI React y Angular para operar sobre la misma base de datos
+## Entidades del Sistema
 
----
+### 1. Animes (Anime)
 
-## 2) Estructura del repositorio
+Representa los animes disponibles en el catálogo.
 
-```text
-anime-catalog/
-├─ backend/            # API REST (Express + Mongoose)
-├─ frontend-react/     # Cliente React (Vite)
-└─ frontend-angular/   # Cliente Angular (standalone)
-```
+Campos:
 
----
+- `_id`: ObjectId - Identificador único (automático)
+- `title`: String - Título del anime (obligatorio)
+- `description`: String - Descripción (mínimo 10 caracteres, obligatorio)
+- `posterUrl`: String - URL del póster (`http://` o `https://`, obligatorio)
+- `bannerUrl`: String - URL de banner (opcional)
+- `trailerUrl`: String - URL de tráiler (opcional)
+- `episodes`: Number - Número de episodios (>= 1, obligatorio)
+- `durationMinutes`: Number - Duración por episodio en minutos (>= 1, opcional)
+- `releaseDate`: Date - Fecha de estreno (obligatorio)
+- `season`: String - Temporada (`Invierno`, `Primavera`, `Verano`, `Otoño`)
+- `year`: Number - Año (1950 a 2100)
+- `ageRating`: String - Clasificación (`G`, `PG`, `PG-13`, `R`, `R+`, `RX`)
+- `isOngoing`: Boolean - Estado de emisión (obligatorio)
+- `inLibrary`: Boolean - Marcador de biblioteca personal
+- `isFavorite`: Boolean - Marcador de favorito
+- `rating`: Number - Puntuación de 0 a 10 (obligatorio)
+- `genres`: Array[String] - Lista de géneros (mínimo 1, obligatorio)
+- `studio`: ObjectId - Referencia al estudio (`Studio`)
+- `createdAt`: Date - Fecha de creación (automática)
+- `updatedAt`: Date - Fecha de actualización (automática)
 
-## 3) Arquitectura y flujo general
-
-1. El frontend (React o Angular) hace peticiones HTTP al backend.
-2. Express enruta a controladores (`controllers`).
-3. Controladores aplican filtros/paginación/lógica de negocio.
-4. Modelos Mongoose (`models`) validan y persisten en MongoDB.
-5. Middlewares gestionan errores, rutas inexistentes e IDs inválidos.
-
-### Backend (arranque)
-
-- `server.js` carga variables de entorno y conecta MongoDB (`connectDB`).
-- Si MongoDB conecta, levanta `app.js` en `PORT` (default `3000`).
-- `app.js` monta rutas bajo `/api/v1`.
-
-Importante: `http://localhost:3000/` devuelve 404 por diseño. Usa rutas bajo `/api/v1`.
-
----
-
-## 4) Requisitos
-
-- Node.js (LTS recomendado)
-- npm
-- MongoDB (Atlas o local) accesible con URI válida
-
-Variables necesarias en `backend/.env`:
-
-```env
-PORT=3000
-MONGODB_URI=mongodb+srv://...
-```
-
----
-
-## 5) Puesta en marcha rápida
-
-### 5.1 Backend
-
-```bash
-cd backend
-npm install
-npm run dev
-```
-
-Comprobar salud:
-
-```bash
-GET http://localhost:3000/api/v1/health
-```
-
-Respuesta esperada:
-
-```json
-{ "ok": true }
-```
-
-### 5.2 Seed de datos
-
-```bash
-cd backend
-npm run seed
-```
-
-El seed limpia colecciones y vuelve a insertar estudios y animes.
-
-### 5.3 Frontend React
-
-```bash
-cd frontend-react
-npm install
-npm run dev
-```
-
-URL habitual: `http://localhost:5173`
-
-### 5.4 Frontend Angular
-
-```bash
-cd frontend-angular
-npm install
-npm start
-```
-
-URL habitual: `http://localhost:4200`
-
----
-
-## 6) Backend en detalle
-
-### 6.1 Scripts (`backend/package.json`)
-
-- `npm run dev`: levanta con nodemon
-- `npm start`: levanta con node
-- `npm run seed`: ejecuta semilla
-
-### 6.2 Middlewares
-
-- `validateObjectId`: devuelve 400 si `:id` no es ObjectId válido
-- `notFound`: marca 404 para rutas inexistentes
-- `errorHandler`: normaliza errores en formato JSON
-
-Formato de error:
+Ejemplo de documento:
 
 ```json
 {
-  "error": {
-    "message": "...",
-    "statusCode": 400
-  }
+  "_id": "507f1f77bcf86cd799439011",
+  "title": "Demon Slayer",
+  "description": "A young swordsman joins a corps to cure his sister and fight demons.",
+  "posterUrl": "https://via.placeholder.com/300x450?text=Demon+Slayer",
+  "bannerUrl": "https://images.example.com/demon-slayer-banner.jpg",
+  "trailerUrl": "https://www.youtube.com/watch?v=example",
+  "episodes": 55,
+  "durationMinutes": 24,
+  "releaseDate": "2019-04-06T00:00:00.000Z",
+  "season": "Primavera",
+  "year": 2019,
+  "ageRating": "PG-13",
+  "isOngoing": true,
+  "inLibrary": false,
+  "isFavorite": false,
+  "rating": 8.6,
+  "genres": ["Action", "Fantasy"],
+  "studio": "507f1f77bcf86cd799439099",
+  "createdAt": "2026-02-24T10:30:00.000Z",
+  "updatedAt": "2026-02-24T10:30:00.000Z"
 }
 ```
 
-Reglas del `errorHandler`:
+Temporadas soportadas:
 
-- `ValidationError` (Mongoose) -> 400
-- `CastError` -> 400
-- `code 11000` (duplicado unique index) -> 409
-- resto -> 500 (o status previamente asignado)
+- Invierno, Primavera, Verano, Otoño
 
-### 6.3 Modelos y reglas de negocio
+### 2. Estudios (Studio)
 
-#### Studio
+Representa los estudios de animación asociados a los animes.
 
-Campos principales:
+Campos:
 
-- `name` (requerido)
-- `nameNormalized` (interno, unique, minúsculas)
-- `country` (opcional)
-- `foundedDate` (opcional)
-- `isActive` (boolean, default `true`)
+- `_id`: ObjectId - Identificador único
+- `name`: String - Nombre del estudio (obligatorio)
+- `country`: String - País (opcional)
+- `foundedDate`: Date - Fecha de fundación (opcional)
+- `isActive`: Boolean - Estado del estudio (default: `true`)
+- `createdAt`: Date - Fecha de creación
+- `updatedAt`: Date - Fecha de última actualización
 
-Regla clave:
+## Reglas de Negocio
 
-- No permite estudios duplicados por nombre (case-insensitive) usando `nameNormalized`.
+- Título único: no pueden existir dos animes con el mismo `title` (comparación case-insensitive).
+- Nombre de estudio único: no pueden existir dos estudios con el mismo `name` (case-insensitive).
+- Rating válido: `rating` debe estar entre 0 y 10.
+- Episodios válidos: `episodes` debe ser mayor o igual a 1.
+- Géneros obligatorios: `genres` debe incluir al menos un género.
+- Descripción mínima: `description` debe tener al menos 10 caracteres.
+- URL válida: `posterUrl` es obligatoria y debe comenzar por `http://` o `https://`.
+- Normalización automática: título/estudio se normalizan internamente para validar unicidad.
+- Año automático: si no se envía `year`, se calcula desde `releaseDate`.
+- Validación de ID: los IDs deben ser ObjectId válidos de MongoDB.
+- Actualización automática: `updatedAt` se actualiza en cada modificación.
 
-#### Anime
+## 🔌 API Endpoints
 
-Campos principales:
+### 📚 Documentación General
 
-- `title` (requerido)
-- `titleNormalized` (interno, unique, minúsculas)
-- `description` (mínimo 10 caracteres)
-- `posterUrl` (requerido, `http://` o `https://`)
-- `bannerUrl` y `trailerUrl` (opcionales, URL HTTP/S si existen)
-- `episodes` (mínimo 1)
-- `durationMinutes` (opcional, mínimo 1)
-- `releaseDate` (requerido)
-- `season` (`Winter|Spring|Summer|Fall`)
-- `year` (1950..2100, autocalculado desde `releaseDate` si no se envía)
-- `ageRating` (`G|PG|PG-13|R|R+|RX`)
-- `isOngoing` (requerido)
-- `rating` (0..10)
-- `genres` (array con al menos 1 valor)
-- `studio` (ObjectId ref `Studio`, opcional)
+- `GET /` - Estado general de la API.
+- `GET /api/v1/health` - Healthcheck del servicio.
 
-Lógica automática en `pre('validate')`:
+Base URL local:
 
-- Normaliza título/nombre para controlar duplicados
-- Limpia `genres` (trim, elimina vacíos y repetidos)
-- Completa `year` desde `releaseDate` cuando falta
+- `http://localhost:3000/api/v1`
 
----
+### 🎬 Animes (Endpoint principal con paginación y filtros)
 
-## 7) API REST detallada
+#### `GET /api/v1/animes` - Obtener animes paginados
 
-Base URL: `/api/v1`
+Parámetros de consulta:
 
-### 7.1 Health
+- `page` (opcional): número de página (default: 1)
+- `limit` (opcional): elementos por página (default: 10)
+- `search` (opcional): búsqueda por título
+- `genre` (opcional): filtro por género
+- `season` (opcional): temporada
+- `year` (opcional): año
+- `isOngoing` (opcional): `true` o `false`
+- `studioId` (opcional): ObjectId de estudio
+- `minRating` / `maxRating` (opcional): rango de rating
+- `sortBy` (opcional): `createdAt`, `rating`, `releaseDate`, `title`, `episodes`
+- `order` (opcional): `asc` o `desc`
 
-#### GET `/health`
+Ejemplo:
 
-Comprueba que la API está viva.
-
-Respuesta 200:
-
-```json
-{ "ok": true }
+```http
+GET http://localhost:3000/api/v1/animes?page=1&limit=10&search=naruto&genre=Action&order=desc
 ```
 
----
-
-### 7.2 Studios
-
-#### GET `/studios`
-
-Lista estudios ordenados por nombre ascendente.
-
-#### GET `/studios/:id`
-
-Devuelve un estudio por ID.
-
-- 200 si existe
-- 404 si no existe
-- 400 si `id` inválido
-
-#### POST `/studios`
-
-Crea un estudio.
-
-Body ejemplo:
-
-```json
-{
-  "name": "Bones",
-  "country": "Japan",
-  "foundedDate": "1998-10-01",
-  "isActive": true
-}
-```
-
-Respuesta:
-
-- 201 con documento creado
-- 400 por validación
-- 409 por duplicado de nombre
-
-#### PATCH `/studios/:id`
-
-Actualiza parcialmente un estudio.
-
-#### DELETE `/studios/:id`
-
-Elimina estudio.
-
-- 204 sin body en éxito
-
----
-
-### 7.3 Animes
-
-#### GET `/animes`
-
-Listado con filtros, paginación y orden.
-
-Query params soportados:
-
-- `page` (default `1`)
-- `limit` (default `10`)
-- `search` (regex sobre `title`, case-insensitive)
-- `genre` (match en `genres`)
-- `season` (`winter|spring|summer|fall` o capitalizado)
-- `year` (numérico)
-- `isOngoing` (`true|false`)
-- `studioId` (ObjectId)
-- `minRating`, `maxRating` (rango)
-- `sortBy` (`createdAt|rating|releaseDate|title|episodes`)
-- `order` (`asc|desc`, default `desc`)
-
-Respuesta ejemplo:
+Respuesta exitosa (200):
 
 ```json
 {
@@ -298,262 +161,204 @@ Respuesta ejemplo:
 }
 ```
 
-#### GET `/animes/discover`
+#### `GET /api/v1/animes/discover` - Bloques para home
 
-Endpoint para home tipo streaming con bloques prefiltrados.
-
-Respuesta:
-
-- `hero`: anime destacado
-- `topRated`: top por rating
-- `trending`: estrenos/recientes (`releaseDate <= now`)
-- `ongoing`: en emisión
-- `upcoming`: próximos (`releaseDate > now`)
-- `genres`: listado de géneros únicos ordenados
-- `stats`: `{ total, ongoing, upcoming }`
-
-#### GET `/animes/:id`
-
-Detalle de anime por ID (con `studio` poblado).
-
-#### POST `/animes`
-
-Crea anime.
-
-Body ejemplo:
+Respuesta (200):
 
 ```json
 {
-  "title": "Demon Slayer",
-  "description": "A young swordsman joins a corps to cure his sister and fight demons.",
-  "posterUrl": "https://via.placeholder.com/300x450?text=Demon+Slayer",
-  "bannerUrl": "https://images.example.com/demon-slayer-banner.jpg",
-  "trailerUrl": "https://www.youtube.com/watch?v=example",
-  "episodes": 55,
-  "durationMinutes": 24,
-  "releaseDate": "2019-04-06",
-  "season": "Spring",
-  "year": 2019,
-  "ageRating": "PG-13",
-  "isOngoing": true,
-  "rating": 8.6,
-  "genres": ["Action", "Fantasy"],
-  "studio": "65f1a2..."
+  "hero": {},
+  "topRated": [],
+  "trending": [],
+  "ongoing": [],
+  "upcoming": [],
+  "genres": ["Action", "Drama"],
+  "stats": {
+    "total": 20,
+    "ongoing": 8,
+    "upcoming": 3
+  }
 }
 ```
 
-#### PATCH `/animes/:id`
+#### `GET /api/v1/animes/:id` - Obtener anime por ID
 
-Actualización parcial.
+- 200: devuelve anime
+- 404: anime no encontrado
+- 400: ID inválido
 
-#### DELETE `/animes/:id`
+#### `POST /api/v1/animes` - Crear anime
 
-Eliminación física del documento.
+Body (JSON):
 
-- 204 sin body
+```json
+{
+  "title": "Attack on Titan",
+  "description": "Humanity fights for survival against giant titans.",
+  "posterUrl": "https://images.example.com/aot-poster.jpg",
+  "episodes": 87,
+  "releaseDate": "2013-04-07",
+  "season": "Primavera",
+  "isOngoing": false,
+  "rating": 9.1,
+  "genres": ["Action", "Drama"]
+}
+```
 
----
+- 201: creado correctamente
+- 400: validación
+- 409: duplicado
 
-## 8) Frontend React (qué hace)
+#### `PATCH /api/v1/animes/:id` - Actualizar anime
 
-### Routing
+- 200: actualizado correctamente
 
-- `/animes` listado + filtros + discover
-- `/animes/new` crear anime
-- `/animes/:id` detalle
-- `/animes/:id/edit` editar
-- `/studios` listado estudios
-- `/studios/new` crear estudio
-- `/studios/:id` detalle estudio
-- `/studios/:id/edit` editar estudio
+#### `DELETE /api/v1/animes/:id` - Eliminar anime
 
-### Cliente HTTP
+- 204: eliminado correctamente (sin body)
 
-- `src/api/axios.js` con `baseURL = http://localhost:3000/api/v1`
+### 🏢 Estudios (Studios)
 
-### Comportamiento funcional
+#### `GET /api/v1/studios` - Obtener estudios
+#### `GET /api/v1/studios/:id` - Obtener estudio por ID
+#### `POST /api/v1/studios` - Crear estudio
+#### `PATCH /api/v1/studios/:id` - Actualizar estudio
+#### `DELETE /api/v1/studios/:id` - Eliminar estudio
 
-- Anime list consume:
-  - `GET /animes`
-  - `GET /animes/discover`
-  - `GET /studios` (para filtros)
-- Filtros avanzados: búsqueda, género, season, year, estado, studio, rating, orden
-- CRUD completo en animes y studios
-- Confirmación al eliminar
-- Mensajes de éxito/error y loader
-- Fallback de imágenes por título (`utils/animeImages.js`)
+Ejemplo `POST /api/v1/studios`:
 
----
+```json
+{
+  "name": "Bones",
+  "country": "Japan",
+  "foundedDate": "1998-10-01",
+  "isActive": true
+}
+```
 
-## 9) Frontend Angular (qué hace)
+## Ubicación del Proyecto
 
-### Routing
+- `C:\Users\adriu\Desktop\anime-catalog\`
 
-Mismas rutas funcionales que React para animes y studios.
+## Instalación y Configuración
 
-### Cliente HTTP
+### 1. Configurar Backend
 
-- `API_BASE_URL = http://localhost:3000/api/v1`
-- `AnimeService` y `StudioService` encapsulan peticiones REST
+```bash
+cd C:\Users\adriu\Desktop\anime-catalog\backend
+npm install
+npm run dev
+```
 
-### Comportamiento funcional
+### 2. Configurar Frontend Angular
 
-- `AnimeListComponent`: listado, filtros básicos y paginación
-- `AnimeFormComponent`: alta/edición con Reactive Forms + validaciones
-- `StudioListComponent` y `StudioFormComponent`: CRUD de estudios
-- Confirm modal, alert y loader en componentes compartidos
-- Sugerencia/fallback de imagen por título (`core/anime-images.ts`)
+```bash
+cd C:\Users\adriu\Desktop\anime-catalog\frontend-angular
+npm install
+npm start
+```
 
----
+### 3. Configurar Frontend React
 
-## 10) Diferencias React vs Angular
+```bash
+cd C:\Users\adriu\Desktop\anime-catalog\frontend-react
+npm install
+npm run dev
+```
 
-- Ambos comparten API y capacidad CRUD.
-- React implementa además `discover`, bloques destacados y más filtros (`season`, `year`, `sortBy`, `order`).
-- Angular mantiene una versión más compacta de listado/filtros.
+## 🌐 URLs
 
----
+### Locales
 
-## 11) Status codes esperados
+- Backend API: `http://localhost:3000/api/v1`
+- Frontend Angular: `http://localhost:4200`
+- Frontend React: `http://localhost:5173`
 
-- `200` lectura/actualización
-- `201` creación
-- `204` eliminación
-- `400` validación / ID inválido
-- `404` recurso o ruta no encontrada
-- `409` duplicados (índices únicos)
-- `500` error interno
+### Producción (vercell)
 
----
+- Backend: `anime-catalog-9wds9erkz-adris-projects-d855fff9.vercel.app`
+- Angular: `anime-catalog-fronted-angular-6jplf5d9u-adris-projects-d855fff9.vercel.app`
+- React: `anime-catalog-fronted-react-1grkjbimk-adris-projects-d855fff9.vercel.app`
 
-## 12) Troubleshooting
-
-### No responde en `http://localhost:3000/`
-
-Es normal: la API vive en `/api/v1`, no en la raíz.
-
-Usa:
-
-- `http://localhost:3000/api/v1/health`
-- `http://localhost:3000/api/v1/animes`
-- `http://localhost:3000/api/v1/studios`
-
-### `npm start` backend falla
-
-Revisar:
-
-1. `backend/.env` existe y tiene `MONGODB_URI` válida.
-2. MongoDB acepta la conexión (IP whitelist/credenciales).
-3. El puerto `3000` no está ocupado.
-
-### Frontend no carga datos
-
-1. Backend levantado en `3000`.
-2. Base URL correcta (`/api/v1`).
-3. Revisar consola/red para ver status y mensaje JSON de error.
-
----
-
-## 13) Guía rápida para explicar el código (FAQ técnica)
-
-### ¿Dónde están las rutas?
-
-- `backend/src/routes/animeRoutes.js`
-- `backend/src/routes/studioRoutes.js`
-
-### ¿Dónde está la lógica de negocio?
-
-- `backend/src/controllers/*.js`
-- `backend/src/models/*.js` (validaciones de esquema)
-
-### ¿Dónde se maneja el error global?
-
-- `backend/src/middlewares/errorHandler.js`
-
-### ¿Dónde se define la base URL del backend en cada frontend?
-
-- React: `frontend-react/src/api/axios.js`
-- Angular: `frontend-angular/src/app/core/api.config.ts`
-
-### ¿Cómo se cargan datos demo?
-
-- `backend/src/seed/seed.js`
-- comando `npm run seed`
-
----
-
-## 14) Comandos útiles por módulo
+## Tecnologías Utilizadas
 
 ### Backend
 
-```bash
-npm run dev
-npm start
-npm run seed
-```
-
-### Frontend React
-
-```bash
-npm run dev
-npm run build
-npm run preview
-npm run lint
-```
+- Node.js: runtime de JavaScript
+- Express: framework web
+- MongoDB: base de datos NoSQL
+- Mongoose: ODM para MongoDB
+- CORS: middleware para peticiones cross-origin
 
 ### Frontend Angular
 
+- Angular 20 (standalone)
+- Bootstrap 5
+- Router de Angular
+- Formularios reactivos (`@angular/forms`)
+
+### Frontend React
+
+- React 19
+- Vite
+- React Router
+- Bootstrap 5
+- Axios
+
+## ⚡ Características Destacadas
+
+### 📄 Paginación y Filtros
+
+El sistema incluye paginación y filtros en el endpoint principal de animes:
+
+- `GET /api/v1/animes?page=1&limit=10`
+- Filtros combinables (`search`, `genre`, `season`, `year`, `rating`, etc.)
+- Orden dinámico (`sortBy`, `order`)
+- Respuesta con metadatos (`page`, `total`, `totalPages`)
+
+### 🎯 Endpoint Discover
+
+`GET /api/v1/animes/discover` agrupa contenido para una home tipo streaming:
+
+- Anime destacado (`hero`)
+- Top mejor valorados (`topRated`)
+- Tendencias (`trending`)
+- En emisión (`ongoing`)
+- Próximos estrenos (`upcoming`)
+- Estadísticas globales (`stats`)
+
+### 📈 Beneficios de Rendimiento
+
+- Menor carga inicial por paginación.
+- Consultas optimizadas con `skip/limit`.
+- Filtros en backend para reducir procesamiento en cliente.
+- Escalabilidad para catálogos grandes.
+
+
+## 📊 Testing y Validación
+
+- Pruebas manuales recomendadas con Postman/Thunder Client.
+- Verificación de datos y relaciones con MongoDB Compass.
+- Validar casos de éxito y error (`400`, `404`, `409`) en endpoints CRUD.
+
+## Datos de Ejemplo
+
+El backend incluye un seed para poblar datos iniciales:
+
 ```bash
-npm start
-npm run build
-npm run test
+cd backend
+npm run seed
 ```
 
----
+El seed inserta al menos:
 
-## 15) Resumen ejecutivo
+- 5+ estudios
+- 20+ animes
 
-Este repo implementa una plataforma CRUD de animes/estudios con una API REST centralizada y dos interfaces cliente (React y Angular). La lógica crítica está en backend (validación, reglas de negocio, filtros, paginación, discover, errores), y ambos frontends son consumidores de ese contrato HTTP.
+## Autor
 
----
+Proyecto académico de catálogo de anime (stack MERN/MEAN híbrido con Angular + React sobre la misma API).
 
-## 16) Deploy en Vercel (todo en Vercel)
+## Licencia
 
-Este monorepo se despliega en **3 proyectos separados** dentro de Vercel, todos apuntando al mismo repo de GitHub:
-
-1. Proyecto `backend` (Root Directory: `backend`)
-2. Proyecto `frontend-react` (Root Directory: `frontend-react`)
-3. Proyecto `frontend-angular` (Root Directory: `frontend-angular`)
-
-### Orden recomendado
-
-1. Desplegar `backend` primero.
-2. Copiar URL pública del backend, por ejemplo:
-   `https://anime-catalog-api.vercel.app/api/v1`
-3. Configurar esa URL en variables de entorno de los dos frontends.
-4. Desplegar `frontend-react` y `frontend-angular`.
-
-### Variables de entorno en Vercel
-
-#### Backend (`backend`)
-
-- `MONGODB_URI` = cadena de conexión MongoDB Atlas
-
-#### Frontend React (`frontend-react`)
-
-- `VITE_API_BASE_URL` = `https://<tu-backend>.vercel.app/api/v1`
-
-#### Frontend Angular (`frontend-angular`)
-
-- `NG_APP_API_BASE_URL` = `https://<tu-backend>.vercel.app/api/v1`
-
-### Archivos de referencia
-
-- Backend serverless entrypoint: `backend/api/index.js`
-- Config Vercel backend: `backend/vercel.json`
-- Base URL React: `frontend-react/src/api/axios.js`
-- Base URL Angular: `frontend-angular/src/app/core/api.config.ts`
-- Ejemplos de variables:
-  - `backend/.env.example`
-  - `frontend-react/.env.example`
-  - `frontend-angular/.env.example`
+Este proyecto es de uso educativo.
