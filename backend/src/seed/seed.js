@@ -1,10 +1,6 @@
-const path = require('path');
-const dotenv = require('dotenv');
 const connectDB = require('../config/db');
 const Studio = require('../models/Studio');
 const Anime = require('../models/Anime');
-
-dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 const studioSeed = [
   { name: 'Bones', country: 'Japan', foundedDate: '1998-10-01', isActive: true },

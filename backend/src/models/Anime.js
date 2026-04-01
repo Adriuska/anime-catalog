@@ -63,6 +63,11 @@ const animeSchema = new mongoose.Schema(
       required: [true, 'Episodes is required'],
       min: [1, 'Episodes must be at least 1'],
     },
+    animeType: {
+      type: String,
+      enum: ['TV', 'OVA', 'ONA', 'Movie', 'Special'],
+      default: 'TV',
+    },
     durationMinutes: {
       type: Number,
       min: [1, 'Duration must be at least 1 minute'],
@@ -114,6 +119,19 @@ const animeSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Studio',
     },
+    sourceRefs: [
+      {
+        provider: {
+          type: String,
+          enum: ['anilist', 'jikan', 'kitsu'],
+          required: true,
+        },
+        externalId: {
+          type: String,
+          required: true,
+        },
+      },
+    ],
   },
   { timestamps: true }
 );

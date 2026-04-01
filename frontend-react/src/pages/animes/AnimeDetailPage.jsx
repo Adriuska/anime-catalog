@@ -1,18 +1,21 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { api } from '../../api/axios';
+import { meApi } from '../../api/me';
 import Loader from '../../components/Loader';
 import AlertMessage from '../../components/AlertMessage';
 import ConfirmModal from '../../components/ConfirmModal';
+import ModalSeleccionarLista from '../../components/ModalSeleccionarLista';
 import { getAnimeImageByTitle, getPreferredAnimeImage } from '../../utils/animeImages';
 
-export default function AnimeDetailPage() {
+export default function AnimeDetailPage({ isAuthenticated = false }) {
   const { id } = useParams();
   const navigate = useNavigate();
   const [anime, setAnime] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [showListModal, setShowListModal] = useState(false);
 
   useEffect(() => {
     const fetchAnime = async () => {
@@ -40,23 +43,36 @@ export default function AnimeDetailPage() {
     }
   };
 
-  const handleToggleLibrary = async () => {
+  const handleAddToList = () => {
     if (!anime?._id) return;
-    try {
-      const { data } = await api.patch(`/animes/${anime._id}`, { inLibrary: !anime.inLibrary });
-      setAnime(data);
-    } catch {
-      setError('No se pudo actualizar el estado de biblioteca.');
+
+    if (!isAuthenticated) {
+      setError('Debes iniciar sesión para usar listas privadas.');
+      return;
     }
+
+    setShowListModal(true);
   };
 
   const handleToggleFavorite = async () => {
     if (!anime?._id) return;
+
+    if (!isAuthenticated) {
+      setError('Debes iniciar sesión para usar favoritos privados.');
+      return;
+    }
+
     try {
-      const { data } = await api.patch(`/animes/${anime._id}`, { isFavorite: !anime.isFavorite });
-      setAnime(data);
-    } catch {
+      if (anime.isFavorite) {
+        await meApi.removeFavorite(anime._id);
+        setAnime((prev) => ({ ...prev, isFavorite: false }));
+      } else {
+        await meApi.addFavorite(anime._id);
+        setAnime((prev) => ({ ...prev, isFavorite: true }));
+      }
+    } catch (err) {
       setError('No se pudo actualizar el estado de favorito.');
+      console.error(err);
     }
   };
 
@@ -78,7 +94,6 @@ export default function AnimeDetailPage() {
               <div className="d-flex flex-wrap gap-2 mb-3">
                 <span className="badge text-bg-warning">★ {anime.rating?.toFixed(1)}</span>
                 <span className="badge text-bg-dark">{anime.isOngoing ? 'En emisión' : 'Finalizado'}</span>
-                {anime.inLibrary && <span className="badge badge-library">En biblioteca</span>}
                 {anime.isFavorite && <span className="badge badge-favorite">★ Favorito</span>}
                 {anime.ageRating && <span className="badge text-bg-secondary">{anime.ageRating}</span>}
               </div>
@@ -94,11 +109,24 @@ export default function AnimeDetailPage() {
                   src={getPreferredAnimeImage(anime, 'poster')}
                   className="img-fluid rounded anime-detail-poster"
                   alt={anime.title}
+                  data-attempt="0"
                   onError={(event) => {
-                    if (event.currentTarget.src !== fallbackPoster) {
-                      event.currentTarget.src = fallbackPoster;
+                    const img = event.currentTarget;
+                    const attemptCount = parseInt(img.dataset.attempt || '0', 10);
+
+                    if (attemptCount === 0) {
+                      img.dataset.attempt = '1';
+                      img.src = fallbackPoster;
+                      return;
+                    }
+
+                    if (attemptCount === 1) {
+                      img.dataset.attempt = '2';
+                      img.src = 'https://placehold.co/600x900/1a1a2e/00d4ff?text=No+Image';
+                      return;
                     }
                   }}
+                  loading="lazy"
                 />
               </div>
               <div className="col-md-8 col-lg-9">
@@ -124,11 +152,8 @@ export default function AnimeDetailPage() {
                 </div>
 
                 <div className="d-flex flex-wrap gap-2">
-                  <Link className="btn btn-primary" to={`/animes/${anime._id}/edit`}>Editar</Link>
                   <button className="btn btn-danger" onClick={() => setDeleteOpen(true)}>Eliminar</button>
-                  <button className={`btn ${anime.inLibrary ? 'btn-primary' : 'btn-outline-primary'}`} onClick={handleToggleLibrary}>
-                    {anime.inLibrary ? 'En biblioteca' : 'Añadir a biblioteca'}
-                  </button>
+                  <button className="btn btn-outline-primary" onClick={handleAddToList}>Añadir a lista</button>
                   <button className={`btn ${anime.isFavorite ? 'btn-warning' : 'btn-outline-warning'}`} onClick={handleToggleFavorite}>
                     {anime.isFavorite ? '★ Favorito' : '☆ Favorito'}
                   </button>
@@ -146,6 +171,14 @@ export default function AnimeDetailPage() {
         onCancel={() => setDeleteOpen(false)}
         onConfirm={handleDelete}
       />
+
+      {showListModal && anime && (
+        <ModalSeleccionarLista
+          animeId={anime._id}
+          onClose={() => setShowListModal(false)}
+          onSuccess={() => setShowListModal(false)}
+        />
+      )}
     </>
   );
 }

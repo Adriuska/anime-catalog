@@ -16,7 +16,7 @@ const connectDB = async () => {
   const mongoUri = databaseConfig.mongoUri?.trim() || process.env.MONGODB_URI?.trim();
 
   if (!mongoUri) {
-    throw new Error('MongoDB URI is required in src/config/database.js (mongoUri) or MONGODB_URI environment variable');
+    throw new Error('MongoDB URI is required in src/config/database.js or MONGODB_URI environment variable');
   }
 
   cachedPromise = mongoose

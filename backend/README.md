@@ -1,134 +1,130 @@
 # Anime Catalog Backend
 
-API REST para catálogo de animes y estudios usando Node.js, Express y MongoDB (Mongoose).
+API REST del proyecto AniVerse. Gestiona autenticacion, catalogo local, integracion con proveedores externos, estudios, listas privadas y favoritos.
 
-## Setup
+## Stack
 
-1. Instalar dependencias:
+- Node.js
+- Express
+- MongoDB con Mongoose
+- JWT
+- Integracion con AniList, Jikan y Kitsu
+
+## Ejecucion local
 
 ```bash
 npm install
-```
-
-2. Crear archivo `.env` a partir de `.env.example`:
-
-```bash
-cp .env.example .env
-```
-
-3. Completar `MONGODB_URI` en `.env` con tu cadena de MongoDB Atlas.
-
-4. Ejecutar en modo desarrollo:
-
-```bash
 npm run dev
 ```
 
-## Variables de entorno
+## Configuracion
 
-- `PORT`: puerto del servidor (default 3000)
-- `MONGODB_URI`: URI de conexión a MongoDB Atlas
+La configuracion principal del proyecto se mantiene en `src/config/database.js`.
 
-## Reglas de negocio
+Campos principales:
 
-1. No se permiten estudios duplicados por nombre (insensible a mayúsculas/minúsculas).
-2. No se permiten animes duplicados por título (insensible a mayúsculas/minúsculas).
-3. `rating` debe estar en el rango `0..10`.
-4. `episodes` debe ser `>= 1`.
-5. `genres` debe incluir al menos un valor y se soporta filtro por `genre` en listados.
+- `port`
+- `mongoUri`
+- `jwtSecret`
+- `jwtExpiresIn`
+
+La version actual del proyecto esta pensada para trabajar directamente con esa configuracion, sin depender de archivos `.env` para el flujo habitual de desarrollo.
 
 ## Base URL
 
 `/api/v1`
 
-## Health
+## Endpoints publicos
 
+### Estado
+
+- `GET /`
 - `GET /api/v1/health`
-- Respuesta:
+
+Respuesta de health:
 
 ```json
 { "ok": true }
 ```
 
-## Endpoints Studios
+### Auth
 
-### GET /api/v1/studios
+#### `POST /api/v1/auth/register`
 
-Obtiene todos los estudios.
+Crea un usuario y devuelve token JWT.
 
-### GET /api/v1/studios/:id
-
-Obtiene un estudio por ID.
-
-### POST /api/v1/studios
-
-Body ejemplo:
+Body:
 
 ```json
 {
-  "name": "Bones",
-  "country": "Japan",
-  "foundedDate": "1998-10-01",
-  "isActive": true
+  "email": "usuario@mail.com",
+  "password": "password123",
+  "displayName": "Adrian"
 }
 ```
 
-Respuesta `201` (ejemplo):
+#### `POST /api/v1/auth/login`
+
+Autentica un usuario existente y devuelve token JWT.
+
+Body:
 
 ```json
 {
-  "_id": "65f1a2...",
-  "name": "Bones",
-  "country": "Japan",
-  "foundedDate": "1998-10-01T00:00:00.000Z",
-  "isActive": true,
-  "createdAt": "2026-02-17T12:00:00.000Z",
-  "updatedAt": "2026-02-17T12:00:00.000Z"
+  "email": "usuario@mail.com",
+  "password": "password123"
 }
 ```
 
-### PATCH /api/v1/studios/:id
+#### `GET /api/v1/auth/me`
 
-Actualiza parcialmente un estudio.
+Devuelve el usuario autenticado.
 
-### DELETE /api/v1/studios/:id
+Header requerido:
 
-Elimina un estudio. Respuesta `204` sin body.
+```http
+Authorization: Bearer <token>
+```
 
-## Endpoints Animes
+### Catalogo de anime
 
-### GET /api/v1/animes
+#### `GET /api/v1/animes`
 
-Listado con paginación y filtros.
+Listado principal con paginacion, filtros y busqueda federada.
 
-Query params:
+Query params soportados:
 
-- `page`, `limit`
-- `search` (por `title`, case-insensitive)
-- `genre` (valor dentro de `genres`)
-- `season` (`Winter|Spring|Summer|Fall`)
+- `page`
+- `limit`
+- `search`
+- `genre`
+- `season`
 - `year`
-- `isOngoing` (`true`/`false`)
+- `yearFrom`, `yearTo`
+- `isOngoing`
 - `studioId`
+- `episodesMin`, `episodesMax`
+- `animeType`
 - `minRating`, `maxRating`
 - `sortBy` (`createdAt|rating|releaseDate|title|episodes`)
 - `order` (`asc|desc`)
+- `includeExternal` (`true|false`)
 
-Respuesta:
+Comportamiento importante:
 
-```json
-{
-  "data": [],
-  "page": 1,
-  "limit": 10,
-  "total": 20,
-  "totalPages": 2
-}
+- Si `search` tiene valor y `includeExternal` no es `false`, el backend mezcla resultados locales con resultados externos.
+- Los resultados externos llegan marcados con `external: true`.
+- Los resultados externos no sustituyen automaticamente tu catalogo: se persisten al guardarlos en favoritos o listas, o al importar manualmente.
+
+Ejemplo:
+
+```http
+GET /api/v1/animes?page=1&limit=12&search=naruto&genre=Action&animeType=TV&includeExternal=true
 ```
 
-### GET /api/v1/animes/discover
+#### `GET /api/v1/animes/discover`
 
-Devuelve secciones listas para home estilo streaming:
+Devuelve bloques preparados para la portada:
 
 - `hero`
 - `topRated`
@@ -136,79 +132,150 @@ Devuelve secciones listas para home estilo streaming:
 - `ongoing`
 - `upcoming`
 - `genres`
-- `stats` (`total`, `ongoing`, `upcoming`)
+- `stats`
 
-### GET /api/v1/animes/:id
+#### `GET /api/v1/animes/:id`
 
-Obtiene un anime por ID.
+Devuelve el detalle de un anime persistido en la base de datos.
 
-### POST /api/v1/animes
+#### `POST /api/v1/animes`
+#### `PATCH /api/v1/animes/:id`
+#### `DELETE /api/v1/animes/:id`
 
-Body ejemplo:
+Siguen disponibles para administracion o mantenimiento del catalogo local.
+
+### Estudios
+
+- `GET /api/v1/studios`
+- `GET /api/v1/studios/:id`
+- `POST /api/v1/studios`
+- `PATCH /api/v1/studios/:id`
+- `DELETE /api/v1/studios/:id`
+
+## Endpoints privados
+
+Todos requieren:
+
+```http
+Authorization: Bearer <token>
+```
+
+### Favoritos
+
+- `GET /api/v1/me/favorites`
+- `POST /api/v1/me/favorites`
+- `DELETE /api/v1/me/favorites/:animeId`
+
+Se puede guardar un anime ya persistido:
 
 ```json
 {
-  "title": "Demon Slayer",
-  "description": "A young swordsman joins a corps to cure his sister and fight demons.",
-  "posterUrl": "https://via.placeholder.com/300x450?text=Demon+Slayer",
-  "bannerUrl": "https://images.example.com/demon-slayer-banner.jpg",
-  "trailerUrl": "https://www.youtube.com/watch?v=example",
-  "episodes": 55,
-  "durationMinutes": 24,
-  "releaseDate": "2019-04-06",
-  "season": "Spring",
-  "year": 2019,
-  "ageRating": "PG-13",
-  "isOngoing": true,
-  "rating": 8.6,
-  "genres": ["Action", "Fantasy"],
-  "studio": "65f1a2..."
+  "animeId": "<ObjectId>"
 }
 ```
 
-### PATCH /api/v1/animes/:id
+O guardar directamente un resultado externo:
 
-Actualiza parcialmente un anime.
+```json
+{
+  "externalAnime": {
+    "title": "Naruto",
+    "description": "...",
+    "posterUrl": "https://...",
+    "episodes": 220,
+    "releaseDate": "2002-10-03T00:00:00.000Z",
+    "isOngoing": false,
+    "rating": 7.9,
+    "genres": ["Action", "Adventure"],
+    "animeType": "TV",
+    "sourceRefs": [{ "provider": "jikan", "externalId": "20" }]
+  }
+}
+```
 
-### DELETE /api/v1/animes/:id
+En ese caso el backend hace upsert del anime y luego lo vincula al usuario.
 
-Elimina un anime. Respuesta `204` sin body.
+### Listas privadas
 
-## Status codes
+- `GET /api/v1/me/lists`
+- `POST /api/v1/me/lists`
+- `PATCH /api/v1/me/lists/:listId`
+- `DELETE /api/v1/me/lists/:listId`
+- `GET /api/v1/me/lists/:listId/items`
+- `POST /api/v1/me/lists/:listId/items`
+- `DELETE /api/v1/me/lists/:listId/items/:animeId`
 
-- `201` create
-- `200` read/update
-- `204` delete
-- `400` validación o ID inválido
-- `404` no encontrado
-- `409` duplicado
+Para anadir items se soportan los mismos dos modos:
+
+- `{ "animeId": "<ObjectId>" }`
+- `{ "externalAnime": { ... } }`
+
+### Importacion externa
+
+- `POST /api/v1/import/anilist`
+- `POST /api/v1/import/jikan`
+- `POST /api/v1/import/kitsu`
+
+Body opcional:
+
+```json
+{
+  "page": 1,
+  "limit": 25,
+  "query": "romance"
+}
+```
+
+Respuesta tipo:
+
+```json
+{
+  "provider": "anilist",
+  "page": 1,
+  "limit": 25,
+  "query": "romance",
+  "imported": 20,
+  "updated": 5,
+  "totalFetched": 25
+}
+```
+
+## Reglas de negocio relevantes
+
+- No se permiten animes duplicados por titulo normalizado.
+- No se permiten estudios duplicados por nombre normalizado.
+- `rating` debe estar entre `0` y `10`.
+- `episodes` debe ser `>= 1`.
+- `genres` debe incluir al menos un valor.
+- Las listas y favoritos son siempre privados y se resuelven por usuario autenticado.
+- Un anime externo se consolida en MongoDB cuando el usuario lo guarda o cuando se importa manualmente.
+
+## Status codes habituales
+
+- `200` lectura o actualizacion correcta
+- `201` creacion correcta
+- `204` eliminacion correcta
+- `400` validacion o parametros invalidos
+- `401` autenticacion invalida
+- `404` recurso no encontrado
+- `409` conflicto por duplicado
 
 ## Seed
-
-Ejecuta seed con mínimo 5 estudios y 20 animes:
 
 ```bash
 npm run seed
 ```
 
-## Ejemplo paginación + filtros
-
-```http
-GET /api/v1/animes?page=1&limit=5&search=man&genre=Action&isOngoing=true&minRating=7&maxRating=10
-```
-
 ## Deploy en Vercel
 
-Este backend está preparado para desplegarse en Vercel como función serverless.
+El backend esta preparado para ejecutarse como funcion serverless.
 
-- Root Directory del proyecto en Vercel: `backend`
-- Entry point serverless: `api/index.js`
-- Config de rutas: `vercel.json`
+- Root Directory: `backend`
+- Entry point: `api/index.js`
+- Config de despliegue: `vercel.json`
 
-Variable obligatoria en Vercel:
+Health check de referencia:
 
-- `MONGODB_URI`
-
-Health check en producción:
-
-- `GET https://<tu-backend>.vercel.app/api/v1/health`
+```http
+GET https://<tu-backend>.vercel.app/api/v1/health
+```
